@@ -6,8 +6,18 @@ const router = require('./routes/userRoutes');
 
 
 const app = express();
-app.use(cors());
 app.use(express.json());
+const allowedOrigins = [
+    "http://localhost:5173",
+    "https://trade-expo-backend.vercel.app"
+  ]
+  
+  app.use(cors({
+    origin: allowedOrigins,
+    credentials: true
+  }))
+
+
 app.get("/",(req,res)=>[
   res.json("Hello World")
 ])
