@@ -2,6 +2,7 @@ const express = require('express')
 const cors = require('cors');
 const dbConnection = require('./config/dbconnect');
 const router = require('./routes/userRoutes');
+require("dotenv").config();
 
 
 
@@ -9,7 +10,6 @@ const app = express();
 app.use(express.json());
 const allowedOrigins = [
     "http://localhost:5173",
-    "https://trade-expo-backend.vercel.app"
   ]
   
   app.use(cors({
@@ -27,5 +27,5 @@ dbConnection()
 
 app.use("/api/users", router);
 
-const PORT = 8080;
+const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));

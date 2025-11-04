@@ -1,9 +1,10 @@
 import { useState, useRef } from "react";
-import brand1 from "../logos/brand1.png"
-import brand2 from "../logos/brand2.avif"
-import brand3 from "../logos/brand3.png"
-import axios from "axios";
-import heroImg from "../assets/expo 16x9.jpg"
+import brand1 from "../logos/brand1.png";
+import brand2 from "../logos/brand2.avif";
+import brand3 from "../logos/brand3.png";
+import heroImg from "../assets/expo 16x9.jpg";
+import heroImgSm from "../assets/trade expo 393x852.jpg";
+import { registerUser } from "../api/userApi";
 
 
 function Homepage() {
@@ -30,7 +31,7 @@ function Homepage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://localhost:8080", formData);
+      const res = await registerUser(formData);
       console.log(res.data);
       alert("Registration successful!");
       setFormData({ name: "", phone: "", email: "", place: "" });
@@ -51,35 +52,35 @@ function Homepage() {
       {/* Hero Section */}
       <section
         className="min-h-screen bg-cover bg-center flex flex-col items-center justify-center text-white text-center px-4"
-       style={{
-    backgroundImage: `url(${heroImg})`,
-    backgroundSize: "100% 100%", 
-    backgroundRepeat: "no-repeat",
-    backgroundPosition: "center",
-    height: "100vh",
-    width: "100%",
-  }}
+        style={{
+          backgroundImage: `url(${window.innerWidth < 800 ? heroImgSm : heroImg})`,
+          backgroundSize: "cover",
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: "center",
+          height: "100vh",
+          width: "100%",
+        }}
       >
-         <div className="-mt-10 sm:-mt-14 md:-mt-90">
-        <h1 className="text-2xl sm:text-3xl md:text-5xl font-extrabold drop-shadow-lg tracking-widest">
-          KERALA'S
-        </h1>
-        <h1 className="text-5xl sm:text-6xl md:text-8xl font-extrabold drop-shadow-lg tracking-widest">
-          LARGEST
-        </h1>
-        <h1 className="text-2xl sm:text-3xl md:text-6xl font-extrabold drop-shadow-lg tracking-widest">
-          TRADE EXPO
-        </h1>
+        <div className="-mb-20 sm:-mt-14 md:-mt-90">
+          <h1 className="text-2xl sm:text-3xl md:text-5xl font-extrabold drop-shadow-lg tracking-widest">
+            KERALA'S
+          </h1>
+          <h1 className="text-5xl sm:text-6xl md:text-8xl font-extrabold drop-shadow-lg tracking-widest">
+            LARGEST
+          </h1>
+          <h1 className="text-2xl sm:text-3xl md:text-6xl font-extrabold drop-shadow-lg tracking-widest">
+            TRADE EXPO
+          </h1>
 
-        <button
-          onClick={scrollToForm}
-          className="relative mt-3 px-10 py-3 font-extrabold text-black rounded-full overflow-hidden group"
-        >
-          <span className="absolute inset-0 bg-linear-to-r from-yellow-300 to-green-400 rounded-full transition-transform duration-1500 ease-in-out group-hover:rotate-180"></span>
-          <span className="relative z-10 transform scale-100 transition-all duration-1000 ease-in-out group-hover:scale-140 group-hover:tracking-wider">
-            BOOK YOUR STALL NOW
-          </span>
-        </button>
+          <button
+            onClick={scrollToForm}
+            className="relative mt-3 px-10 py-3 font-extrabold text-black rounded-full overflow-hidden group"
+          >
+            <span className="absolute inset-0 bg-linear-to-r from-yellow-300 to-green-400 rounded-full transition-transform duration-1500 ease-in-out group-hover:rotate-180"></span>
+            <span className="relative z-10 transform scale-100 transition-all duration-1000 ease-in-out group-hover:scale-140 group-hover:tracking-wider">
+              BOOK YOUR STALL NOW
+            </span>
+          </button>
         </div>
       </section>
 
@@ -87,7 +88,7 @@ function Homepage() {
       <section ref={formRef}>
         <div className="flex flex-col justify-center items-center min-h-screen bg-gray-50 px-4 py-16">
           <div className="text-center mb-10">
-            <h2 className="text-7xl font-extrabold text-gray-800 mb-3 py-2 uppercase tracking-tight">
+            <h2 className="text-4xl sm:text-7xl font-extrabold text-gray-800 mb-3 py-2 uppercase tracking-tight">
               Book Your Stall
             </h2>
             <p className="text-gray-600 font-extralight mb-5 text-sm sm:text-base max-w-lg mx-auto">
@@ -227,7 +228,7 @@ function Homepage() {
         <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-3 uppercase tracking-tight">
           Featured Brands
         </h2>
-        <p className="text-gray-600 mb-12 sm:mb-16 text-base sm:text-lg max-w-2xl">
+        <p className="text-gray-600 mb-1 sm:mb-16 text-base sm:text-lg max-w-2xl">
           Discover the leading brands and partners joining our event
         </p>
 

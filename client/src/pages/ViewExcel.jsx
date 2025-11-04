@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
+import { getUsers } from "../api/userApi";
 
 function ViewExcel() {
   const [data, setData] = useState([]);
@@ -10,7 +11,7 @@ function ViewExcel() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:8080/api/users/list")
+      getUsers()
       .then((res) => setData(res.data))
       .catch((err) => console.error("Fetch error:", err));
   }, []);
