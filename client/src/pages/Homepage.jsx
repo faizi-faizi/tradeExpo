@@ -38,7 +38,7 @@ function Homepage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://localhost:8080/api/users/register", formData);
+      const res = await axios.post("https://trade-expo-backend.vercel.app/api/users/register", formData);
       console.log(res.data);
       setSubmitted(true);
       alert("Registration successful!");

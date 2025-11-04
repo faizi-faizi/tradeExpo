@@ -10,7 +10,7 @@ function ViewExcel() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:8080/api/users/list")
+      .get("https://trade-expo-backend.vercel.app/api/users/list")
       .then((res) => setData(res.data))
       .catch((err) => console.error("Fetch error:", err));
   }, []);
