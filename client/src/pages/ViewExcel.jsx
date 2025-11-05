@@ -7,33 +7,34 @@ import { getUsers } from "../api/userApi";
 function ViewExcel() {
   const [data, setData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const usersPerPage = 20; // ✅ change this to control number of rows per page
+  const usersPerPage = 20; // change as needed
 
   useEffect(() => {
-    axios
-      getUsers()
-      .then((res) => setData(res.data))
-      .catch((err) => console.error("Fetch error:", err));
+    // use your API helper which returns a promise
+    getUsers()
+      .then((res) => setData(res.data || []))
+      .catch((err) => {
+        console.error("Fetch error:", err);
+        setData([]);
+      });
   }, []);
 
-  // Pagination logic
+  // Pagination
   const indexOfLastUser = currentPage * usersPerPage;
   const indexOfFirstUser = indexOfLastUser - usersPerPage;
   const currentUsers = data.slice(indexOfFirstUser, indexOfLastUser);
-
-  const totalPages = Math.ceil(data.length / usersPerPage);
+  const totalPages = Math.max(1, Math.ceil(data.length / usersPerPage));
 
   const handleNextPage = () => {
-    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+    if (currentPage < totalPages) setCurrentPage((p) => p + 1);
   };
-
   const handlePrevPage = () => {
-    if (currentPage > 1) setCurrentPage(currentPage - 1);
+    if (currentPage > 1) setCurrentPage((p) => p - 1);
   };
 
-  // Excel download function
+  // Download Excel (client-side)
   const handleDownload = () => {
-    if (data.length === 0) {
+    if (!data.length) {
       alert("No data to export!");
       return;
     }
@@ -43,7 +44,9 @@ function ViewExcel() {
       Email: user.email,
       Phone: user.phone,
       Place: user.place,
-      "Registered At": new Date(user.createdAt).toLocaleString(),
+      "Registered At": user.createdAt
+        ? new Date(user.createdAt).toLocaleString()
+        : "-",
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(worksheetData);
@@ -59,87 +62,116 @@ function ViewExcel() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-6">
-      <h1 className="text-3xl font-bold mt-10">Registered Users</h1>
-       
-<p className="text-lg font-semibold mb-6 text-gray-600">
-  Total Registered: {data.length}
-</p>
+    <div className="min-h-screen bg-gray-100 flex flex-col items-center p-4 sm:p-6">
+      <div className="w-full max-w-6xl">
+        <h1 className="text-2xl sm:text-3xl font-bold mt-6 mb-2 text-center sm:text-left">
+          Registered Users
+        </h1>
 
-      <table className="border border-gray-300 bg-white shadow-md rounded-lg">
-        <thead>
-          <tr className="bg-gray-200 text-gray-700">
-            <th className="p-3">Name</th>
-            <th className="p-3">Phone</th>
-            <th className="p-3">Email</th>
-            <th className="p-3">Place</th>
-            <th className="p-3">Registered At</th>
-          </tr>
-        </thead>
-        <tbody>
+        <p className="text-sm sm:text-base text-gray-600 mb-4 text-center sm:text-left">
+          Total Registered: <span className="font-semibold">{data.length}</span>
+        </p>
+
+        {/* Table for sm+ screens (scrollable container for small devices too) */}
+        <div className="hidden sm:block overflow-x-auto bg-white rounded-lg shadow">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Name</th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Phone</th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Email</th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Place</th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Registered At</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-100">
+              {currentUsers.length > 0 ? (
+                currentUsers.map((user, i) => (
+                  <tr key={user._id ?? i} className="hover:bg-gray-50">
+                    <td className="px-4 py-3 text-sm text-gray-800">{user.name}</td>
+                    <td className="px-4 py-3 text-sm text-gray-800">{user.phone}</td>
+                    <td className="px-4 py-3 text-sm text-gray-800">{user.email || "-"}</td>
+                    <td className="px-4 py-3 text-sm text-gray-800">{user.place}</td>
+                    <td className="px-4 py-3 text-sm text-gray-800">
+                      {user.createdAt ? new Date(user.createdAt).toLocaleString() : "-"}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td className="px-4 py-6 text-center text-sm text-gray-500" colSpan="5">
+                    No users found
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Card list for small screens */}
+        <div className="sm:hidden space-y-3">
           {currentUsers.length > 0 ? (
             currentUsers.map((user, i) => (
-              <tr key={i} className="border-t hover:bg-gray-50">
-                <td className="p-3">{user.name}</td>
-                <td className="p-3">{user.phone}</td>
-                <td className="p-3">{user.email}</td>
-                <td className="p-3">{user.place}</td>
-                <td className="p-3">
-                  {user.createdAt
-                    ? new Date(user.createdAt).toLocaleString()
-                    : "-"}
-                </td>
-              </tr>
+              <div
+                key={user._id ?? i}
+                className="bg-white p-4 rounded-lg shadow flex flex-col"
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <div className="text-sm font-semibold text-gray-800">{user.name}</div>
+                  <div className="text-xs text-gray-500">{user.phone}</div>
+                </div>
+                <div className="text-xs text-gray-600 mb-1">Email: {user.email || "-"}</div>
+                <div className="text-xs text-gray-600 mb-1">Place: {user.place}</div>
+                <div className="text-xs text-gray-500 mt-2">
+                  Registered: {user.createdAt ? new Date(user.createdAt).toLocaleString() : "-"}
+                </div>
+              </div>
             ))
           ) : (
-            <tr>
-              <td colSpan="5" className="p-3 text-center">
-                No users found
-              </td>
-            </tr>
+            <div className="bg-white p-4 rounded-lg shadow text-center text-sm text-gray-500">
+              No users found
+            </div>
           )}
-        </tbody>
-      </table>
-
-      {/* ✅ Pagination Controls */}
-      {data.length > 0 && (
-        <div className="flex items-center justify-center mt-6 gap-4">
-          <button
-            onClick={handlePrevPage}
-            disabled={currentPage === 1}
-            className={`px-4 py-2 rounded-lg ${
-              currentPage === 1
-                ? "bg-gray-300 cursor-not-allowed"
-                : "bg-blue-600 text-white hover:bg-blue-700"
-            }`}
-          >
-            Previous
-          </button>
-
-          <span className="text-gray-700 font-semibold">
-            Page {currentPage} of {totalPages}
-          </span>
-
-          <button
-            onClick={handleNextPage}
-            disabled={currentPage === totalPages}
-            className={`px-4 py-2 rounded-lg ${
-              currentPage === totalPages
-                ? "bg-gray-300 cursor-not-allowed"
-                : "bg-blue-600 text-white hover:bg-blue-700"
-            }`}
-          >
-            Next
-          </button>
         </div>
-      )}
 
-      <button
-        onClick={handleDownload}
-        className="mt-6 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-all"
-      >
-        Download Excel
-      </button>
+        {/* Pagination + Actions */}
+        <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            <button
+              onClick={handlePrevPage}
+              disabled={currentPage === 1}
+              className={`w-full sm:w-auto px-4 py-2 rounded-lg ${
+                currentPage === 1 ? "bg-gray-300 cursor-not-allowed" : "bg-blue-600 text-white hover:bg-blue-700"
+              }`}
+            >
+              Previous
+            </button>
+
+            <div className="text-sm text-gray-700 font-medium px-3">
+              Page {currentPage} of {totalPages}
+            </div>
+
+            <button
+              onClick={handleNextPage}
+              disabled={currentPage === totalPages}
+              className={`w-full sm:w-auto px-4 py-2 rounded-lg ${
+                currentPage === totalPages ? "bg-gray-300 cursor-not-allowed" : "bg-blue-600 text-white hover:bg-blue-700"
+              }`}
+            >
+              Next
+            </button>
+          </div>
+
+          <div className="flex gap-3 w-full sm:w-auto">
+            <button
+              onClick={handleDownload}
+              className="w-full sm:w-auto bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+            >
+              Download Excel
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
