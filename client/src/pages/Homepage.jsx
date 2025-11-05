@@ -57,7 +57,7 @@ function Homepage() {
           backgroundImage: `url(${window.innerWidth < 800 ? heroImgSm : heroImg})`,
           backgroundSize: "cover",
           backgroundRepeat: "no-repeat",
-          backgroundPosition: "center",
+          backgroundPosition: window.innerWidth < 800 ? "top center" : "center center",
           height: "100vh",
           width: "100%",
         }}
