@@ -272,17 +272,34 @@ function Homepage() {
         <footer className="w-full py-4 mt-10">
           <div className="flex sm:flex-row items-center justify-center gap-2 sm:gap-3 text-gray-500 text-xs sm:text-base font-medium">
             <span>Powered by</span>
-            <img
-              src={skybertech_logo}
-              alt="SkyberTech"
-              className="h-4 sm:h-6 object-contain"
-            />
-            <span>in association with</span>
-            <img
-              src={xyvin_logo}
-              alt="Xyvin"
-              className="h-4 sm:h-6 object-contain"
-            />
+            <a
+    href="https://skybertech.com/"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="inline-flex items-center"
+  >
+    <img
+      src={skybertech_logo}
+      alt="SkyberTech"
+      className="h-4 sm:h-6 object-contain hover:opacity-80 transition-opacity duration-300"
+    />
+  </a>
+
+  <span>in association with</span>
+
+  {/* Xyvin Logo */}
+  <a
+    href="https://www.xyvin.com/"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="inline-flex items-center"
+  >
+    <img
+      src={xyvin_logo}
+      alt="Xyvin"
+      className="h-4 sm:h-6 object-contain hover:opacity-80 transition-opacity duration-300"
+    />
+  </a>
           </div>
         </footer>
       </section>
