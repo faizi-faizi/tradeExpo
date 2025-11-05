@@ -2,14 +2,22 @@ import React, { useEffect, useState } from "react";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { getUsers } from "../api/userApi";
+import { useNavigate } from "react-router-dom";
+import { toast, Toaster } from "sonner";
 
 function ViewExcel() {
   const [data, setData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const usersPerPage = 20; // change as needed
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // use your API helper which returns a promise
+    const loggedIn = localStorage.getItem("isLoggedIn");
+    if (!loggedIn) navigate("/login");
+  }, [navigate]);
+
+
+  useEffect(() => {
     getUsers()
       .then((res) => setData(res.data || []))
       .catch((err) => {
@@ -18,6 +26,14 @@ function ViewExcel() {
       });
   }, []);
 
+
+const handleLogout = () => {
+    localStorage.removeItem("isLoggedIn");
+    toast.success("Logged out successfully!");
+    setTimeout(() => navigate("/login"), 800);
+  };
+
+  
   // Pagination
   const indexOfLastUser = currentPage * usersPerPage;
   const indexOfFirstUser = indexOfLastUser - usersPerPage;
@@ -62,6 +78,16 @@ function ViewExcel() {
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center p-4 sm:p-6">
+      <Toaster richColors />
+
+      <div className="w-full flex justify-end mb-4">
+        <button
+          onClick={handleLogout}
+          className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition"
+        >
+          Logout
+        </button>
+      </div>
       <div className="w-full max-w-6xl">
         <h1 className="text-2xl sm:text-3xl font-bold mt-6 mb-2 text-center sm:text-left">
           Registered Users
