@@ -8,6 +8,7 @@ import { registerUser } from "../api/userApi";
 import { toast } from "sonner";
 import skybertech_logo from "../logos/skybertech_logo.png";
 import xyvin_logo from "../logos/Xyvin_logo.png";
+import footer_trade_expo from "../assets/footer_trade_expo_.png"
 
 
 function Homepage() {
@@ -195,6 +196,8 @@ function Homepage() {
           </div>
         </div>
       </section>
+
+      
       {/* About Section */}
       {/* <section className="bg-white py-24 sm:py-36 px-4 sm:px-8 md:px-16 text-center">
         <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-6">
@@ -236,7 +239,7 @@ function Homepage() {
       </section>
 
       {/* Featured Brands Section */}
-      <section className="min-h-screen bg-white flex flex-col justify-between items-center text-center px-4 sm:px-6">
+      <section className="min-h-screen bg-white flex flex-col items-center text-center">
         {/* Top content */}
         <div className="flex flex-col justify-center items-center flex-grow">
           <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-3 uppercase tracking-tight">
@@ -267,9 +270,17 @@ function Homepage() {
             ))}
           </div>
         </div>
+        
+        <div className="w-full mt-16">
+          <img
+            src={footer_trade_expo}
+            alt="Footer Banner"
+            className="w-full h-auto object-cover"
+          />
+        </div>
 
         {/* Footer */}
-        <footer className="w-full py-4 mt-10">
+        <footer className="w-full">
           <div className="flex sm:flex-row items-center justify-center gap-2 sm:gap-3 text-gray-500 text-xs sm:text-lg font-medium">
             <span>Technology Partner</span>
             <a

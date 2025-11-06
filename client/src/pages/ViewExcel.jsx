@@ -4,8 +4,6 @@ import { saveAs } from "file-saver";
 import { getUsers } from "../api/userApi";
 import { useNavigate } from "react-router-dom";
 import { toast, Toaster } from "sonner";
-import skybertech_logo from "../logos/skybertech_logo.png";
-import xyvin_logo from "../logos/Xyvin_logo.png";
 
 function ViewExcel() {
   const [data, setData] = useState([]);
