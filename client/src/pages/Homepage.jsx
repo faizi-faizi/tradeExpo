@@ -40,7 +40,7 @@ function Homepage() {
       const res = await registerUser(formData);
       console.log(res.data);
       toast.success("Registration successful!")
-      setFormData({ name: "", phone: "", email: "", place: "" });
+      setFormData({ name: "", phone: "", email: "", place: "", cName: "", cType:"" });
     } catch (err) {
       console.error("Error submitting form:", err);
       toast.error("Error submitting form");
@@ -169,7 +169,7 @@ function Homepage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-extrabold text-gray-700 mb-2">
-                    Company Name <span className="text-red-500">*</span>
+                    Company Name
                   </label>
                   <input
                     type="text"
@@ -177,14 +177,13 @@ function Homepage() {
                     value={formData.cName}
                     onChange={handleChange}
                     placeholder="Innovate Solutions Pvt. Ltd."
-                    required
                     className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all duration-300 outline-none"
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-extrabold text-gray-700 mb-2">
-                    Company Type <span className="text-red-500">*</span>
+                    Company Type 
                   </label>
                   <input
                     type="text"
@@ -192,7 +191,6 @@ function Homepage() {
                     value={formData.cType}
                     onChange={handleChange}
                     placeholder="IT, Manufacturing, or Retail"
-                    required
                     className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all duration-300 outline-none"
                   />
                 </div>
@@ -273,6 +271,7 @@ function Homepage() {
           ))}
         </div>
       </section>
+      
       {/* Featured brand and footer section */}
       <section className="min-h-screen bg-white flex flex-col items-center text-center">
         {/* Top content */}
@@ -285,21 +284,24 @@ function Homepage() {
           </p>
 
           {/* Logos + Names */}
-          <div className="flex flex-wrap justify-center items-start gap-y-6 gap-x-10 sm:gap-y-10 sm:gap-x-20 max-w-6xl">
+          <div className="flex flex-wrap justify-center items-start
+           gap-x-10 sm:gap-y-10 sm:gap-x-20 max-w-6xl">
             {logos.map((logo, index) => (
               <div
                 key={index}
-                className="flex flex-col items-center justify-start w-28 sm:w-56"
+                className="flex flex-col items-center justify-start w-30 sm:w-56"
               >
 
                 <div className="flex flex-col items-center justify-end h-24 sm:h-36">
                   <img
                     src={logo.img}
                     alt={logo.name}
-                    className="h-16 sm:h-24 object-contain grayscale hover:grayscale-0 hover:scale-105 transition-all duration-500 ease-in-out"
+                    className={`h-16 sm:h-24 object-contain grayscale hover:grayscale-0 hover:scale-105 transition-all duration-500 ease-in-out ${
+            index === 0 ? "-translate-x-2 sm:translate-x-0" : ""
+          }`}
                   />
                 </div>
-                <h3 className="mt-3 text-sm sm:text-lg font-medium text-gray-700 text-center leading-tight h-10 flex items-start">
+                <h3 className="mt-1 text-sm sm:text-lg font-medium text-gray-700 text-center leading-tight h-10 flex items-start">
                   {logo.name}
                 </h3>
               </div>
