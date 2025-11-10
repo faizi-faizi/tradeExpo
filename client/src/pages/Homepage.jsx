@@ -90,9 +90,9 @@ function Homepage() {
 
       {/* Booking Form Section — always visible */}
       <section ref={formRef}>
-        <div className="flex flex-col justify-center items-center min-h-screen bg-gray-50 px-4 py-16">
-          <div className="text-center mb-10">
-            <h2 className="text-4xl sm:text-7xl font-extrabold text-gray-800 mb-3 py-2 uppercase tracking-tight">
+        <div className="flex flex-col justify-center items-center min-h-screen bg-gray-50 px-4 py-6 sm:py-16">
+          <div className="text-center mb-0 sm:mb-10">
+            <h2 className="text-2xl sm:text-7xl font-extrabold text-gray-800 mb-3 py-2 uppercase tracking-tight">
               Book Your Ticket Now
             </h2>
             <p className="text-gray-600 font-extralight mb-5 text-sm sm:text-base max-w-lg mx-auto">
