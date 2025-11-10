@@ -8,7 +8,7 @@ import { toast, Toaster } from "sonner";
 function ViewExcel() {
   const [data, setData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const usersPerPage = 20; // change as needed
+  const usersPerPage = 20; 
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -47,7 +47,7 @@ function ViewExcel() {
     if (currentPage > 1) setCurrentPage((p) => p - 1);
   };
 
-  // Download Excel (client-side)
+  // Download Excel
   const handleDownload = () => {
     if (!data.length) {
       alert("No data to export!");
@@ -59,6 +59,8 @@ function ViewExcel() {
       Email: user.email,
       Phone: user.phone,
       Place: user.place,
+      Company_Name: user.cName,
+      Company_Type: user.cType,
       "Registered At": user.createdAt
         ? new Date(user.createdAt).toLocaleString()
         : "-",
@@ -95,7 +97,7 @@ function ViewExcel() {
           Total Registered: <span className="font-semibold">{data.length}</span>
         </p>
 
-        {/* Table for sm+ screens (scrollable container for small devices too) */}
+        {/* Table*/}
         <div className="hidden sm:block overflow-x-auto bg-white rounded-lg shadow">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
@@ -104,6 +106,8 @@ function ViewExcel() {
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Phone</th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Email</th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Place</th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Company Name</th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Company Type</th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Registered At</th>
               </tr>
             </thead>
@@ -115,6 +119,8 @@ function ViewExcel() {
                     <td className="px-4 py-3 text-sm text-gray-800">{user.phone}</td>
                     <td className="px-4 py-3 text-sm text-gray-800">{user.email || "-"}</td>
                     <td className="px-4 py-3 text-sm text-gray-800">{user.place}</td>
+                    <td className="px-4 py-3 text-sm text-gray-800">{user.cName}</td>
+                    <td className="px-4 py-3 text-sm text-gray-800">{user.cType}</td>
                     <td className="px-4 py-3 text-sm text-gray-800">
                       {user.createdAt ? new Date(user.createdAt).toLocaleString() : "-"}
                     </td>
@@ -145,6 +151,8 @@ function ViewExcel() {
                 </div>
                 <div className="text-xs text-gray-600 mb-1">Email: {user.email || "-"}</div>
                 <div className="text-xs text-gray-600 mb-1">Place: {user.place}</div>
+                <div className="text-xs text-gray-600 mb-1">Company Name: {user.cName}</div>
+                <div className="text-xs text-gray-600 mb-1">Company Type: {user.cType}</div>
                 <div className="text-xs text-gray-500 mt-2">
                   Registered: {user.createdAt ? new Date(user.createdAt).toLocaleString() : "-"}
                 </div>
@@ -157,9 +165,9 @@ function ViewExcel() {
           )}
         </div>
 
-        {/* Pagination + Actions */}
+        {/* Pagination, Actions */}
         <div className="fixed bottom-1 left-0 w-full py-3 flex flex-col sm:flex-row items-center justify-center gap-4 px-4">
-          {/* Pagination buttons */}
+
           <div className="flex items-center gap-3">
             <button
               onClick={handlePrevPage}

@@ -113,9 +113,9 @@ function Homepage() {
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
-                    placeholder="Your full name"
+                    placeholder="Jane D'Souza"
                     required
-                    className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-400 focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all duration-300 outline-none"
+                    className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all duration-300 outline-none"
                   />
                 </div>
                 <div>
@@ -127,9 +127,9 @@ function Homepage() {
                     name="phone"
                     value={formData.phone}
                     onChange={handleChange}
-                    placeholder="+91 98765 43210"
+                    placeholder="+91 99999 88888"
                     required
-                    className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-400 focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all duration-300 outline-none"
+                    className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all duration-300 outline-none"
                   />
                 </div>
               </div>
@@ -144,8 +144,8 @@ function Homepage() {
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
-                    placeholder="youremail@example.com"
-                    className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-400 focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all duration-300 outline-none"
+                    placeholder="yourname@company.com"
+                    className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all duration-300 outline-none"
                   />
                 </div>
                 <div>
@@ -157,9 +157,41 @@ function Homepage() {
                     name="place"
                     value={formData.place}
                     onChange={handleChange}
-                    placeholder="Your location"
+                    placeholder="Kochi"
                     required
-                    className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-400 focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all duration-300 outline-none"
+                    className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all duration-300 outline-none"
+                  />
+                </div>
+              </div>
+
+               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-extrabold text-gray-700 mb-2">
+                    Company Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="cName"
+                    value={formData.cName}
+                    onChange={handleChange}
+                    placeholder="Innovate Solutions Pvt. Ltd."
+                    required
+                    className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all duration-300 outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-extrabold text-gray-700 mb-2">
+                    Company Type <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="cType"
+                    value={formData.cType}
+                    onChange={handleChange}
+                    placeholder="IT, Manufacturing, or Retail"
+                    required
+                    className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all duration-300 outline-none"
                   />
                 </div>
               </div>
