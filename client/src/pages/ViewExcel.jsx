@@ -1,15 +1,18 @@
 import React, { useEffect, useState } from "react";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
-import { getUsers } from "../api/userApi";
+import { getStalls, getUsers } from "../api/userApi";
 import { useNavigate } from "react-router-dom";
 import { toast, Toaster } from "sonner";
+
 
 function ViewExcel() {
   const [data, setData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const usersPerPage = 20; 
+  const usersPerPage = 20;
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("event");
+  const [stallData, setStallData] = useState([]);
 
   useEffect(() => {
     const loggedIn = localStorage.getItem("isLoggedIn");
@@ -26,6 +29,12 @@ function ViewExcel() {
       });
   }, []);
 
+  useEffect(() => {
+    getStalls()
+      .then((res) => setStallData(res.data || []))
+      .catch(() => setStallData([]));
+  }, []);
+
 
   const handleLogout = () => {
     localStorage.removeItem("isLoggedIn");
@@ -37,8 +46,11 @@ function ViewExcel() {
   // Pagination
   const indexOfLastUser = currentPage * usersPerPage;
   const indexOfFirstUser = indexOfLastUser - usersPerPage;
-  const currentUsers = data.slice(indexOfFirstUser, indexOfLastUser);
-  const totalPages = Math.max(1, Math.ceil(data.length / usersPerPage));
+  const dataToShow = activeTab === "event" ? data : stallData;
+
+  const currentUsers = dataToShow.slice(indexOfFirstUser, indexOfLastUser);
+  const totalPages = Math.max(1, Math.ceil(dataToShow.length / usersPerPage));
+
 
   const handleNextPage = () => {
     if (currentPage < totalPages) setCurrentPage((p) => p + 1);
@@ -49,33 +61,54 @@ function ViewExcel() {
 
   // Download Excel
   const handleDownload = () => {
-    if (!data.length) {
-      alert("No data to export!");
+    const dataToExport = activeTab === "event" ? data : stallData;
+    if (!dataToExport.length) {
+      toast.error("No data to export!");
       return;
     }
 
-    const worksheetData = data.map((user) => ({
-      Name: user.name,
-      Email: user.email,
-      Phone: user.phone,
-      Place: user.place,
-      Company_Name: user.cName,
-      Company_Type: user.cType,
-      "Registered At": user.createdAt
-        ? new Date(user.createdAt).toLocaleString()
-        : "-",
-    }));
+    const worksheetData =
+    activeTab === "event"
+      ? dataToExport.map((user) => ({
+          Name: user.name,
+          Email: user.email,
+          Phone: user.phone,
+          Place: user.place,
+          Company_Name: user.cName,
+          Company_Type: user.cType,
+          Registered_At: user.createdAt
+            ? new Date(user.createdAt).toLocaleString()
+            : "-",
+        }))
+      : dataToExport.map((user) => ({
+          Name: user.name,
+          Email: user.email,
+          Phone: user.phone,
+          Place: user.place,
+          Company_Name: user.companyName,
+          Position: user.position,
+          Registered_At: user.createdAt
+            ? new Date(user.createdAt).toLocaleString()
+            : "-",
+        }));
 
     const worksheet = XLSX.utils.json_to_sheet(worksheetData);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Users");
+    XLSX.utils.book_append_sheet(
+      workbook, 
+      worksheet, 
+      activeTab === "event" ? "Event Bookings" : "Stall Bookings"
+    );
 
     const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
     const blob = new Blob([excelBuffer], {
       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     });
 
-    saveAs(blob, "users.xlsx");
+    saveAs(
+    blob,
+    activeTab === "event" ? "event_bookings.xlsx" : "stall_bookings.xlsx"
+  );
   };
 
   return (
@@ -88,13 +121,46 @@ function ViewExcel() {
           Logout
         </button>
       </div>
+      {/* TAB SWITCHER */}
+      <div className="flex justify-center mb-6 mt-2">
+        <div className="flex rounded-xl overflow-hidden shadow-sm border bg-white">
+
+          {/* EVENT TAB */}
+          <button
+            onClick={() => setActiveTab("event")}
+            className={`px-6 sm:px-10 py-3 font-semibold text-sm sm:text-base transition-all
+        ${activeTab === "event"
+                ? "bg-blue-100 text-black "
+                : "bg-white text-gray-500 hover:bg-gray-100"
+              }`}
+          >
+            EVENT BOOKING
+          </button>
+
+          {/* STALL TAB */}
+          <button
+            onClick={() => setActiveTab("stall")}
+            className={`px-6 sm:px-10 py-3 font-semibold text-sm sm:text-base transition-all border-l
+        ${activeTab === "stall"
+                ? "bg-blue-100 text-black"
+                : "bg-white text-gray-500 hover:bg-gray-100"
+              }`}
+          >
+            STALL BOOKING
+          </button>
+
+        </div>
+      </div>
       <div className="w-full max-w-6xl">
         <h1 className="text-2xl sm:text-3xl font-bold mt-6 mb-2 text-center sm:text-left">
           Registered Users
         </h1>
 
         <p className="text-sm sm:text-base text-gray-600 mb-4 text-center sm:text-left">
-          Total Registered: <span className="font-semibold">{data.length}</span>
+          Total Registered:
+          <span className="font-semibold">
+            {activeTab === "event" ? data.length : stallData.length}
+          </span>
         </p>
 
         {/* Table*/}
@@ -107,7 +173,9 @@ function ViewExcel() {
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Email</th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Place</th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Company Name</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Company Type</th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">
+                  {activeTab === "event" ? "Company Type" : "Position"}
+                </th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Registered At</th>
               </tr>
             </thead>
@@ -119,8 +187,13 @@ function ViewExcel() {
                     <td className="px-4 py-3 text-sm text-gray-800">{user.phone}</td>
                     <td className="px-4 py-3 text-sm text-gray-800">{user.email || "-"}</td>
                     <td className="px-4 py-3 text-sm text-gray-800">{user.place}</td>
-                    <td className="px-4 py-3 text-sm text-gray-800">{user.cName}</td>
-                    <td className="px-4 py-3 text-sm text-gray-800">{user.cType}</td>
+                    <td className="px-4 py-3 text-sm text-gray-800">
+                      {activeTab === "event" ? user.cName : user.companyName}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-800">
+                      {activeTab === "event" ? user.cType : user.position}
+                    </td>
+
                     <td className="px-4 py-3 text-sm text-gray-800">
                       {user.createdAt ? new Date(user.createdAt).toLocaleString() : "-"}
                     </td>
@@ -151,8 +224,15 @@ function ViewExcel() {
                 </div>
                 <div className="text-xs text-gray-600 mb-1">Email: {user.email || "-"}</div>
                 <div className="text-xs text-gray-600 mb-1">Place: {user.place}</div>
-                <div className="text-xs text-gray-600 mb-1">Company Name: {user.cName}</div>
-                <div className="text-xs text-gray-600 mb-1">Company Type: {user.cType}</div>
+                <div className="text-xs text-gray-600 mb-1">
+  Company Name: {activeTab === "event" ? user.cName : user.companyName}
+</div>
+
+<div className="text-xs text-gray-600 mb-1">
+  {activeTab === "event"
+    ? `Company Type: ${user.cType}`
+    : `Position: ${user.position}`}
+</div>
                 <div className="text-xs text-gray-500 mt-2">
                   Registered: {user.createdAt ? new Date(user.createdAt).toLocaleString() : "-"}
                 </div>
@@ -173,8 +253,8 @@ function ViewExcel() {
               onClick={handlePrevPage}
               disabled={currentPage === 1}
               className={`px-4 py-2 rounded-lg text-sm font-medium ${currentPage === 1
-                  ? "bg-gray-300 cursor-not-allowed"
-                  : "bg-blue-600 text-white hover:bg-blue-700"
+                ? "bg-gray-300 cursor-not-allowed"
+                : "bg-blue-600 text-white hover:bg-blue-700"
                 }`}
             >
               Previous
@@ -188,8 +268,8 @@ function ViewExcel() {
               onClick={handleNextPage}
               disabled={currentPage === totalPages}
               className={`px-4 py-2 rounded-lg text-sm font-medium ${currentPage === totalPages
-                  ? "bg-gray-300 cursor-not-allowed"
-                  : "bg-blue-600 text-white hover:bg-blue-700"
+                ? "bg-gray-300 cursor-not-allowed"
+                : "bg-blue-600 text-white hover:bg-blue-700"
                 }`}
             >
               Next

@@ -4,7 +4,7 @@ import brand2 from "../logos/brand2.avif";
 import brand3 from "../logos/brand3.png";
 import heroImg from "../assets/expo 16x9.jpg";
 import heroImgSm from "../assets/trade expo 393x852.jpg";
-import { registerUser } from "../api/userApi";
+import { registerStall, registerUser } from "../api/userApi";
 import { toast } from "sonner";
 import skybertech_logo from "../logos/skybertech_logo.png";
 import xyvin_logo from "../logos/Xyvin_logo.png";
@@ -20,8 +20,18 @@ function Homepage() {
     cName: "",
     cType: "",
   });
-  const formRef = useRef(null);
 
+  const [stallData, setStallData] = useState({
+    name: "",
+    companyName: "",
+    position: "",
+    phone: "",
+    email: "",
+    place: "",
+  });
+
+  const formRef = useRef(null);
+  const [activeForm, setActiveForm] = useState("event");
   // Scroll to form
   const scrollToForm = () => {
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -33,6 +43,11 @@ function Homepage() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleStallChange = (e) => {
+    const { name, value } = e.target;
+    setStallData((prev) => ({ ...prev, [name]: value }));
+  };
+
   // Handle form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -40,10 +55,40 @@ function Homepage() {
       const res = await registerUser(formData);
       console.log(res.data);
       toast.success("Registration successful!")
-      setFormData({ name: "", phone: "", email: "", place: "", cName: "", cType:"" });
+      setFormData({
+        name: "",
+        phone: "",
+        email: "",
+        place: "",
+        cName: "",
+        cType: ""
+      });
     } catch (err) {
       console.error("Error submitting form:", err);
       toast.error("Error submitting form");
+    }
+  };
+
+
+  const handleStallSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await registerStall(stallData);
+      console.log(res.data);
+      toast.success("Stall booking submitted!");
+
+      // Reset form
+      setStallData({
+        name: "",
+        companyName: "",
+        position: "",
+        phone: "",
+        email: "",
+        place: "",
+      });
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to submit stall booking");
     }
   };
 
@@ -90,22 +135,194 @@ function Homepage() {
         </div>
       </section>
 
-      {/* Booking Form Section — always visible */}
-      <section ref={formRef}>
-        <div className="flex flex-col justify-center items-center min-h-screen bg-gray-50 px-4 py-6 sm:py-16">
-          <div className="text-center mb-0 sm:mb-10">
-            <h2 className="text-2xl sm:text-7xl font-extrabold text-gray-800 mb-3 py-2 uppercase tracking-tight">
-              Book Your Ticket Now
-            </h2>
-            <p className="text-gray-600 font-extralight mb-5 text-sm sm:text-base max-w-lg mx-auto">
-              Fill in your details and secure your spot at Kerala’s Largest Trade Expo.
-              Our team will get in touch with you soon.
-            </p>
+      {/* Booking Form Section */}
+      <section ref={formRef} >
+        <div className="flex flex-col items-center justify-start min-h-screen bg-gray-50 px-4 py-6 sm:py-16">
+
+          {/* ======= EVENT | STALL SWITCHER ======= */}
+          <div className="flex items-center gap-6 mb-6 sm:mb-10">
+            <button
+              onClick={() => setActiveForm("event")}
+              className={`
+          text-xl sm:text-4xl font-extrabold uppercase tracking-tight transition-all
+          ${activeForm === "event" ? "text-black scale-110" : "text-gray-400 scale-95"}
+        `}
+            >
+              Event
+            </button>
+
+            <span className="text-gray-400 font-bold text-xl sm:text-4xl">|</span>
+
+            <button
+              onClick={() => setActiveForm("stall")}
+              className={`
+          text-xl sm:text-4xl font-extrabold uppercase tracking-tight transition-all
+          ${activeForm === "stall" ? "text-black scale-110" : "text-gray-400 scale-95"}
+        `}
+            >
+              Stall
+            </button>
           </div>
 
-          <div className="w-full max-w-2xl bg-white shadow-xl rounded-3xl p-10">
-            <form className="space-y-8" onSubmit={handleSubmit}>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          {/* =================== EVENT FORM =================== */}
+          {activeForm === "event" && (
+            <div className="w-full max-w-2xl bg-white shadow-xl rounded-3xl p-10 animate-fadeIn">
+
+              <div className="text-center mb-0 sm:mb-10">
+                <h2 className="text-2xl sm:text-7xl font-extrabold text-gray-800 mb-3 py-2 uppercase tracking-tight">
+                  Book Your Ticket Now
+                </h2>
+                <p className="text-gray-600 font-extralight mb-5 text-sm sm:text-base max-w-lg mx-auto">
+                  Fill in your details and secure your spot at Kerala’s Largest Trade Expo.
+                  Our team will get in touch with you soon.
+                </p>
+              </div>
+
+              <form className="space-y-8" onSubmit={handleSubmit}>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-extrabold text-gray-700 mb-2">
+                      Full Name <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleChange}
+                      placeholder="Jane D'Souza"
+                      required
+                      className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 
+                focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all duration-300 outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-extrabold text-gray-700 mb-2">
+                      Whatsapp Number <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleChange}
+                      placeholder="+91 99999 88888"
+                      required
+                      className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 
+                focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all duration-300 outline-none"
+                    />
+                  </div>
+                </div>
+
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-extrabold text-gray-700 mb-2">
+                      Email Address
+                    </label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      placeholder="yourname@company.com"
+                      className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 
+                focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all duration-300 outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-extrabold text-gray-700 mb-2">
+                      Place <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="place"
+                      value={formData.place}
+                      onChange={handleChange}
+                      placeholder="Kochi"
+                      required
+                      className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 
+                focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all duration-300 outline-none"
+                    />
+                  </div>
+                </div>
+
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-extrabold text-gray-700 mb-2">
+                      Company Name
+                    </label>
+                    <input
+                      type="text"
+                      name="cName"
+                      value={formData.cName}
+                      onChange={handleChange}
+                      placeholder="Innovate Solutions Pvt. Ltd."
+                      className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 
+                focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all duration-300 outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-extrabold text-gray-700 mb-2">
+                      Company Type
+                    </label>
+                    <input
+                      type="text"
+                      name="cType"
+                      value={formData.cType}
+                      onChange={handleChange}
+                      placeholder="IT, Manufacturing, or Retail"
+                      className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 
+                focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all duration-300 outline-none"
+                    />
+                  </div>
+                </div>
+
+                {/* Submit Button */}
+                <div className="pt-6 text-center">
+                  <button
+                    type="submit"
+                    className="relative inline-block px-10 py-3 cursor-pointer rounded-full overflow-hidden group focus:outline-none"
+                  >
+                    <span className="absolute inset-0 rounded-full bg-linear-to-r from-yellow-300 to-green-400 transition-opacity 
+              duration-700 ease-in-out opacity-100 group-hover:opacity-0" />
+
+                    <span className="absolute inset-0 rounded-full bg-linear-to-r from-green-400 to-yellow-300 transition-opacity 
+              duration-700 ease-in-out opacity-0 group-hover:opacity-100" />
+
+                    <span className="relative z-10 text-black font-semibold text-sm">
+                      Register
+                    </span>
+                  </button>
+                </div>
+
+                <p className="text-xs text-center text-gray-500 mt-4">
+                  * Required fields. We respect your privacy and never share your information.
+                </p>
+              </form>
+
+            </div>
+          )}
+
+          {/* =================== STALL BOOKING FORM =================== */}
+          {activeForm === "stall" && (
+            <div className="w-full max-w-2xl bg-white shadow-xl rounded-3xl p-10 animate-fadeIn">
+              <div className="text-center mb-0 sm:mb-10">
+                <h2 className="text-2xl sm:text-7xl font-extrabold text-gray-800 mb-3 py-2 uppercase tracking-tight">
+                  Book Your Stall Now
+                </h2>
+                <p className="text-gray-600 font-extralight mb-5 text-sm sm:text-base max-w-lg mx-auto">
+                  Fill in your details and reserve your stall at Kerala’s Largest Trade Expo.
+                  Our team will get in touch with you soon.
+                </p>
+              </div>
+
+              <form className="space-y-8" onSubmit={handleStallSubmit}>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-extrabold text-gray-700 mb-2">
                     Full Name <span className="text-red-500">*</span>
@@ -113,13 +330,44 @@ function Homepage() {
                   <input
                     type="text"
                     name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    placeholder="Jane D'Souza"
+                    value={stallData.name}
+                    onChange={handleStallChange}
+                    placeholder="John Mathew"
+                    className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all"
                     required
-                    className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all duration-300 outline-none"
                   />
                 </div>
+
+                <div>
+                  <label className="block text-sm font-extrabold text-gray-700 mb-2">
+                    Company Name
+                  </label>
+                  <input
+                    type="text"
+                    name="companyName"
+                    value={stallData.companyName}
+                    onChange={handleStallChange}
+                    placeholder="Tech Innovations Pvt Ltd"
+                    className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all"
+                  />
+                </div>
+</div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-extrabold text-gray-700 mb-2">
+                    Position
+                  </label>
+                  <input
+                    type="text"
+                    name="position"
+                    value={stallData.position}
+                    onChange={handleStallChange}
+                    placeholder="CEO / Founder"
+                    className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all"
+                  />
+                </div>
+
+
                 <div>
                   <label className="block text-sm font-extrabold text-gray-700 mb-2">
                     Whatsapp Number <span className="text-red-500">*</span>
@@ -127,16 +375,16 @@ function Homepage() {
                   <input
                     type="text"
                     name="phone"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    placeholder="+91 99999 88888"
+                    value={stallData.phone}
+                    onChange={handleStallChange}
+                    placeholder="+91 98765 43210"
+                    className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all"
                     required
-                    className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all duration-300 outline-none"
                   />
                 </div>
-              </div>
+                </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-extrabold text-gray-700 mb-2">
                     Email Address
@@ -144,12 +392,14 @@ function Homepage() {
                   <input
                     type="email"
                     name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    placeholder="yourname@company.com"
-                    className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all duration-300 outline-none"
+                    value={stallData.email}
+                    onChange={handleStallChange}
+                    placeholder="yourmail@domain.com"
+                    className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all"
                   />
                 </div>
+
+                {/* Place */}
                 <div>
                   <label className="block text-sm font-extrabold text-gray-700 mb-2">
                     Place <span className="text-red-500">*</span>
@@ -157,75 +407,39 @@ function Homepage() {
                   <input
                     type="text"
                     name="place"
-                    value={formData.place}
-                    onChange={handleChange}
-                    placeholder="Kochi"
+                    value={stallData.place}
+                    onChange={handleStallChange}
+                    placeholder="Kozhikode"
+                    className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all"
                     required
-                    className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all duration-300 outline-none"
                   />
                 </div>
-              </div>
+</div>
+                {/* Button */}
+                <div className="pt-6 text-center">
+                  <button
+                    type="submit"
+                    className="relative inline-block px-10 py-3 cursor-pointer rounded-full overflow-hidden group focus:outline-none"
+                  >
+                    <span className="absolute inset-0 rounded-full bg-linear-to-r from-yellow-300 to-green-400 transition-opacity 
+              duration-700 ease-in-out opacity-100 group-hover:opacity-0" />
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-extrabold text-gray-700 mb-2">
-                    Company Name
-                  </label>
-                  <input
-                    type="text"
-                    name="cName"
-                    value={formData.cName}
-                    onChange={handleChange}
-                    placeholder="Innovate Solutions Pvt. Ltd."
-                    className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all duration-300 outline-none"
-                  />
+                    <span className="absolute inset-0 rounded-full bg-linear-to-r from-green-400 to-yellow-300 transition-opacity 
+              duration-700 ease-in-out opacity-0 group-hover:opacity-100" />
+
+                    <span className="relative z-10 text-black font-semibold text-sm">
+                      Register
+                    </span>
+                  </button>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-extrabold text-gray-700 mb-2">
-                    Company Type 
-                  </label>
-                  <input
-                    type="text"
-                    name="cType"
-                    value={formData.cType}
-                    onChange={handleChange}
-                    placeholder="IT, Manufacturing, or Retail"
-                    className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all duration-300 outline-none"
-                  />
-                </div>
-              </div>
+                <p className="text-xs text-center text-gray-500 mt-4">
+                  * Required fields. We respect your privacy and never share your information.
+                </p>
+              </form>
+            </div>
+          )}
 
-              {/* <div className="flex items-center space-x-3">
-                <input type="checkbox" className="border border-gray-400" required />
-                <label className="text-sm text-gray-600">
-                  I confirm I’m 18 years of age or older
-                </label>
-              </div> */}
-
-              <div className="pt-6 text-center">
-                <button
-                  type="submit"
-                  className="relative inline-block px-10 py-3 cursor-pointer rounded-full overflow-hidden group focus:outline-none"
-                >
-
-                  <span className="absolute inset-0 rounded-full bg-linear-to-r from-yellow-300 to-green-400 transition-opacity duration-700 ease-in-out opacity-100 group-hover:opacity-0" />
-
-
-                  <span className="absolute inset-0 rounded-full bg-linear-to-r from-green-400 to-yellow-300 transition-opacity duration-700 ease-in-out opacity-0 group-hover:opacity-100" />
-
-
-                  <span className="relative z-10 text-black font-semibold text-sm">
-                    Register
-                  </span>
-                </button>
-              </div>
-
-              <p className="text-xs text-center text-gray-500 mt-4">
-                * Required fields. We respect your privacy and never share your information.
-              </p>
-            </form>
-          </div>
         </div>
       </section>
 
@@ -271,7 +485,7 @@ function Homepage() {
           ))}
         </div>
       </section>
-      
+
       {/* Featured brand and footer section */}
       <section className="min-h-screen bg-white flex flex-col items-center text-center">
         {/* Top content */}
@@ -296,9 +510,8 @@ function Homepage() {
                   <img
                     src={logo.img}
                     alt={logo.name}
-                    className={`h-16 sm:h-24 object-contain grayscale hover:grayscale-0 hover:scale-105 transition-all duration-500 ease-in-out ${
-            index === 0 ? "translate-y-1 sm:translate-y-0" : ""
-          }`}
+                    className={`h-16 sm:h-24 object-contain grayscale hover:grayscale-0 hover:scale-105 transition-all duration-500 ease-in-out ${index === 0 ? "translate-y-1 sm:translate-y-0" : ""
+                      }`}
                   />
                 </div>
                 <h3 className="mt-1 text-sm sm:text-lg font-medium text-gray-700 text-center leading-tight h-10 flex items-start">

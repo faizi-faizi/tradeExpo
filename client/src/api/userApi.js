@@ -12,4 +12,15 @@ export const registerUser = (data) => {
 //get list
 export const getUsers = () => API.get("/api/users/list");
 
+//login
 export const loginAdmin = (data) => API.post("/api/auth/login", data);
+
+// Stall registration
+export const registerStall = (data) => {
+  return API.post("/api/stall/register", data);
+};
+
+// Get all stalls
+export const getStalls = () => {
+  return API.get("/api/stall/list");
+};
