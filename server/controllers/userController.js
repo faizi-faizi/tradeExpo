@@ -15,6 +15,7 @@ const addUser = async (req, res) => {
       place,
       cName,
       cType,
+      photo: req.file ? `/userPhotos/${req.file.filename}` : "" ,
       registeredAt: new Date(),
     });
 

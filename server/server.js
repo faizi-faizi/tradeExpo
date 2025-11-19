@@ -5,7 +5,7 @@ const router = require('./routes/userRoutes');
 const authRouter = require('./routes/authRoutes');
 const stallRouter = require('./routes/stallRoutes');
 require("dotenv").config();
-
+const path = require('path');
 
 
 const app = express();
@@ -24,6 +24,11 @@ const allowedOrigins = [
 app.get("/",(req,res)=>[
   res.json("Hello World")
 ])
+
+app.use(
+  "/userPhotos",
+  express.static(path.join(__dirname, "public/userPhotos"))
+);
 
 // Connect DB
 dbConnection()

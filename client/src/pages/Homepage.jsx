@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import skybertech_logo from "../logos/skybertech_logo.png";
 import xyvin_logo from "../logos/Xyvin_logo.png";
 import footer_trade_expo from "../assets/footer_trade_expo_.png"
+import ImageCropper from "../components/ImageCropper";
 
 
 function Homepage() {
@@ -31,8 +32,11 @@ function Homepage() {
   });
 
   const formRef = useRef(null);
+  const photoRef = useRef(null);
   const [activeForm, setActiveForm] = useState("event");
-  // Scroll to form
+  const [showCropper, setShowCropper] = useState(false);
+  const [selectedPhoto, setSelectedPhoto] = useState(null);
+
   const scrollToForm = () => {
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
@@ -51,18 +55,41 @@ function Homepage() {
   // Handle form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
-      const res = await registerUser(formData);
+      const fd = new FormData();
+
+      // Append all text fields
+      fd.append("name", formData.name);
+      fd.append("phone", formData.phone);
+      fd.append("email", formData.email);
+      fd.append("place", formData.place);
+      fd.append("cName", formData.cName);
+      fd.append("cType", formData.cType);
+
+      // Append photo file
+      if (formData.photo) {
+        fd.append("photo", formData.photo);
+      }
+
+      const res = await registerUser(fd); // send FormData
       console.log(res.data);
-      toast.success("Registration successful!")
+
+      toast.success("Registration successful!");
+
+      // Reset fields
       setFormData({
         name: "",
         phone: "",
         email: "",
         place: "",
         cName: "",
-        cType: ""
+        cType: "",
+        photo: null,
       });
+      if (photoRef.current) {
+        photoRef.current.value = "";
+      }
     } catch (err) {
       console.error("Error submitting form:", err);
       toast.error("Error submitting form");
@@ -138,7 +165,21 @@ function Homepage() {
       {/* Booking Form Section */}
       <section ref={formRef} >
         <div className="flex flex-col items-center justify-start min-h-screen bg-gray-50 px-4 py-6 sm:py-16">
+          {showCropper && (
+            <ImageCropper
+              photo={selectedPhoto}
 
+              onCancel={() => {
+                setShowCropper(false);
+                setSelectedPhoto(null);
+              }}
+
+              onCropDone={(croppedFile) => {
+                setFormData((prev) => ({ ...prev, photo: croppedFile }));
+                setShowCropper(false);
+              }}
+            />
+          )}
           {/* ======= EVENT | STALL SWITCHER ======= */}
           <div className="flex items-center gap-6 mb-6 sm:mb-10">
             <button
@@ -280,6 +321,44 @@ function Homepage() {
                     />
                   </div>
                 </div>
+                <div>
+                  <label className="block text-sm font-extrabold text-gray-700 mb-2">
+                    Upload Your Photo
+                  </label>
+                  <div className="flex items-center w-full border border-gray-300 rounded-lg overflow-hidden bg-white">
+
+                    {/* Upload Button */}
+                    <button
+                      type="button"
+                      onClick={() => photoRef.current.click()}
+                      className="bg-gray-600 text-white px-4 py-2 text-sm hover:bg-gray-700 flex items-center gap-2"
+                    >
+                      Upload File
+                    </button>
+
+                    {/* File Name */}
+                    <span className="px-3 py-2 text-sm text-gray-600">
+                      {formData.photo ? formData.photo.name : "No file chosen"}
+                    </span>
+
+                    {/* Hidden File Input */}
+                    <input
+                      type="file"
+                      name="photo"
+                      accept="image/*"
+                      ref={photoRef}
+                      onChange={(e) => {
+                        const file = e.target.files[0]
+                        if (!file) {
+                          return;
+                        }
+                        setSelectedPhoto(file);
+                        setShowCropper(true);
+                      }}
+                      className="hidden"
+                    />
+                  </div>
+                </div>
 
                 {/* Submit Button */}
                 <div className="pt-6 text-center">
@@ -323,98 +402,98 @@ function Homepage() {
               <form className="space-y-8" onSubmit={handleStallSubmit}>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-extrabold text-gray-700 mb-2">
-                    Full Name <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={stallData.name}
-                    onChange={handleStallChange}
-                    placeholder="John Mathew"
-                    className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all"
-                    required
-                  />
-                </div>
+                  <div>
+                    <label className="block text-sm font-extrabold text-gray-700 mb-2">
+                      Full Name <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="name"
+                      value={stallData.name}
+                      onChange={handleStallChange}
+                      placeholder="John Mathew"
+                      className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all"
+                      required
+                    />
+                  </div>
 
-                <div>
-                  <label className="block text-sm font-extrabold text-gray-700 mb-2">
-                    Company Name
-                  </label>
-                  <input
-                    type="text"
-                    name="companyName"
-                    value={stallData.companyName}
-                    onChange={handleStallChange}
-                    placeholder="Tech Innovations Pvt Ltd"
-                    className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all"
-                  />
+                  <div>
+                    <label className="block text-sm font-extrabold text-gray-700 mb-2">
+                      Company Name
+                    </label>
+                    <input
+                      type="text"
+                      name="companyName"
+                      value={stallData.companyName}
+                      onChange={handleStallChange}
+                      placeholder="Tech Innovations Pvt Ltd"
+                      className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all"
+                    />
+                  </div>
                 </div>
-</div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-extrabold text-gray-700 mb-2">
-                    Position
-                  </label>
-                  <input
-                    type="text"
-                    name="position"
-                    value={stallData.position}
-                    onChange={handleStallChange}
-                    placeholder="CEO / Founder"
-                    className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all"
-                  />
-                </div>
+                  <div>
+                    <label className="block text-sm font-extrabold text-gray-700 mb-2">
+                      Position
+                    </label>
+                    <input
+                      type="text"
+                      name="position"
+                      value={stallData.position}
+                      onChange={handleStallChange}
+                      placeholder="CEO / Founder"
+                      className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all"
+                    />
+                  </div>
 
 
-                <div>
-                  <label className="block text-sm font-extrabold text-gray-700 mb-2">
-                    Whatsapp Number <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="phone"
-                    value={stallData.phone}
-                    onChange={handleStallChange}
-                    placeholder="+91 98765 43210"
-                    className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all"
-                    required
-                  />
-                </div>
-                </div>
-
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-extrabold text-gray-700 mb-2">
-                    Email Address
-                  </label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={stallData.email}
-                    onChange={handleStallChange}
-                    placeholder="yourmail@domain.com"
-                    className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all"
-                  />
+                  <div>
+                    <label className="block text-sm font-extrabold text-gray-700 mb-2">
+                      Whatsapp Number <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="phone"
+                      value={stallData.phone}
+                      onChange={handleStallChange}
+                      placeholder="+91 98765 43210"
+                      className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all"
+                      required
+                    />
+                  </div>
                 </div>
 
-                {/* Place */}
-                <div>
-                  <label className="block text-sm font-extrabold text-gray-700 mb-2">
-                    Place <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="place"
-                    value={stallData.place}
-                    onChange={handleStallChange}
-                    placeholder="Kozhikode"
-                    className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all"
-                    required
-                  />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-extrabold text-gray-700 mb-2">
+                      Email Address
+                    </label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={stallData.email}
+                      onChange={handleStallChange}
+                      placeholder="yourmail@domain.com"
+                      className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all"
+                    />
+                  </div>
+
+                  {/* Place */}
+                  <div>
+                    <label className="block text-sm font-extrabold text-gray-700 mb-2">
+                      Place <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="place"
+                      value={stallData.place}
+                      onChange={handleStallChange}
+                      placeholder="Kozhikode"
+                      className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all"
+                      required
+                    />
+                  </div>
                 </div>
-</div>
                 {/* Button */}
                 <div className="pt-6 text-center">
                   <button

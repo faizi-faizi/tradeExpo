@@ -19,14 +19,18 @@ const userSchema = new mongoose.Schema({
   },
   cName:{
     type: String,
-    required: true,
+    default:"",
     trim: true,
   },
   cType:{
     type: String,
-    required: true,
+    default:"",
     trim: true,
   },
+  photo:{
+    type: String,
+    default: "",
+  }
   
 }, { timestamps: true });
 
