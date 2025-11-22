@@ -24,3 +24,6 @@ export const registerStall = (data) => {
 export const getStalls = () => {
   return API.get("/api/stall/list");
 };
+
+// get single user by id
+export const getUserById = (id) => API.get(`/api/users/${id}`);

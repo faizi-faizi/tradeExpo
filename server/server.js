@@ -30,6 +30,8 @@ app.use(
   express.static(path.join(__dirname, "public/userPhotos"))
 );
 
+app.use("/frame", express.static(path.join(__dirname, "public/frame")));
+
 // Connect DB
 dbConnection()
 

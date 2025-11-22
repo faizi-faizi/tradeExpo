@@ -77,6 +77,9 @@ function Homepage() {
 
       toast.success("Registration successful!");
 
+      //redirect to card page
+      window.location.href = `/card/${res.data.userId}`;
+
       // Reset fields
       setFormData({
         name: "",

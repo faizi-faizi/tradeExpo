@@ -30,7 +30,11 @@ const userSchema = new mongoose.Schema({
   photo:{
     type: String,
     default: "",
-  }
+  },
+  qr: {
+  type: String,
+  default: "",
+},
   
 }, { timestamps: true });
 

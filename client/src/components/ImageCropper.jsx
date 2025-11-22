@@ -50,7 +50,7 @@ function ImageCropper({ photo, onCancel, onCropDone }) {
             image={URL.createObjectURL(photo)}
             crop={crop}
             zoom={zoom}
-            aspect={1}          // 🔥 Square crop
+            aspect={3/4}          // 3:4 portrait ratio
             onCropChange={setCrop}
             onZoomChange={setZoom}
             onCropComplete={onCropComplete}
@@ -59,14 +59,14 @@ function ImageCropper({ photo, onCancel, onCropDone }) {
 
         <div className="flex justify-between mt-4">
           <button
-            className="px-4 py-2 bg-gray-400 text-white rounded-lg"
+            className="px-4 py-2 bg-gray-400 hover:bg-gray-600 text-white rounded-lg"
             onClick={onCancel}
           >
             Cancel
           </button>
 
           <button
-            className="px-4 py-2 bg-green-600 text-white rounded-lg"
+            className="px-4 py-2 bg-green-700 hover:bg-green-900 text-white rounded-lg"
             onClick={getCroppedImg}
           >
             Crop & Save
