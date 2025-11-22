@@ -5,6 +5,9 @@ const User = require("../model/userModel");
 const QRCode = require("qrcode")
 
 // Add a new user
+const SERVER_URL = "https://admin.bkfinder.com";
+const CLIENT_URL = "https://bkfinder.com";
+
 const addUser = async (req, res) => {
   try {
     const { name, email, phone, place, cName, cType } = req.body;
@@ -16,24 +19,19 @@ const addUser = async (req, res) => {
       place,
       cName,
       cType,
-      photo: req.file ? `${process.env.APP_URL}/userPhotos/${req.file.filename}` : "" ,
-      registeredAt: new Date(),
+      photo: req.file ? `${SERVER_URL}/userPhotos/${req.file.filename}` : "",
     });
 
-    //generate card URL
-    const APP_URL = "https://bkfinder.com";
-    const cardLink = `${APP_URL}/card/${newUser._id}`
-    
-    //create QR code 
-    const qrImage = await QRCode.toDataURL(cardLink);
+    const cardUrl = `${CLIENT_URL}/card/${newUser._id}`;
+    newUser.qr = await QRCode.toDataURL(cardUrl);
 
-    //save QR inside DB
-    newUser.qr = qrImage;
     await newUser.save();
-    res.status(201).json({ 
+
+    res.status(201).json({
       message: "User registered successfully!",
       userId: newUser._id,
     });
+
   } catch (err) {
     console.error("Error saving user:", err);
     res.status(500).json({ error: "Failed to save user" });
