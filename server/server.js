@@ -10,8 +10,6 @@ const path = require('path');
 const app = express();
 
 // Allow large uploads
-app.use(express.json({ limit: "25mb" }));
-app.use(express.urlencoded({ extended: true, limit: "25mb" }));
 
 // FIXED CORS
 const allowedOrigins = [
@@ -22,14 +20,8 @@ const allowedOrigins = [
 ];
 
 app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Blocked by CORS"));
-    }
-  },
-  credentials: true
+  origin: allowedOrigins,
+  credentials:true,
 }));
 
 app.use("/userPhotos", express.static(path.join(__dirname, "public/userPhotos")));
