@@ -11,8 +11,8 @@ function ImageCropper({ photo, onCancel, onCropDone }) {
   }, []);
 
   const getCroppedImg = async () => {
-    if(!photo) return;
-    
+    if (!photo) return;
+
     const image = new Image();
     image.src = URL.createObjectURL(photo);
 
@@ -36,7 +36,9 @@ function ImageCropper({ photo, onCancel, onCropDone }) {
     );
 
     canvas.toBlob((blob) => {
-      const file = new File([blob], "cropped.jpg", { type: "image/jpeg" });
+      const originalName = photo.name || "image.jpg";
+      const fileName = originalName.replace(/\.[^/.]+$/, "");
+      const file = new File([blob], fileName, { type: "image/jpeg" });
       onCropDone(file);
     }, "image/jpeg");
   };
@@ -44,13 +46,13 @@ function ImageCropper({ photo, onCancel, onCropDone }) {
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
       <div className="bg-white p-4 rounded-lg w-80 sm:w-96">
-        
+
         <div className="relative w-full h-64 bg-gray-200">
           <Cropper
             image={URL.createObjectURL(photo)}
             crop={crop}
             zoom={zoom}
-            aspect={3/4}          // 3:4 portrait ratio
+            aspect={5 / 6}          // 5:6 portrait ratio
             onCropChange={setCrop}
             onZoomChange={setZoom}
             onCropComplete={onCropComplete}

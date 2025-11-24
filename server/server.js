@@ -9,7 +9,6 @@ const path = require('path');
 
 const app = express();
 
-// Allow large uploads
 
 // FIXED CORS
 const allowedOrigins = [

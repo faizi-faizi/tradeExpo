@@ -4,10 +4,11 @@ const fs = require("fs");
 const User = require("../model/userModel");
 const QRCode = require("qrcode")
 
-// Add a new user
+
 const SERVER_URL = "https://admin.bkfinder.com";
 const CLIENT_URL = "https://bkfinder.com";
 
+// Add a new user
 const addUser = async (req, res) => {
   try {
     const { name, email, phone, place, cName, cType } = req.body;
