@@ -41,7 +41,7 @@ export default function CardPage() {
             {/* BACK BUTTON */}
             <button
                 onClick={() => window.history.back()}
-                className="absolute top-5 left-5 text-lg font-semibold text-gray-700 hover:underline"
+                className="absolute top-5 left-5 text-lg font-semibold text-gray-700 hover:underline cursor-pointer"
             >
                 ← Back
             </button>
@@ -49,7 +49,7 @@ export default function CardPage() {
             {/* DOWNLOAD BUTTON */}
             <button
                 onClick={downloadPDF}
-                className="absolute top-5 right-5 bg-gray-600 text-white px-4 py-2 rounded-lg shadow hover:bg-gray-700"
+                className="absolute top-5 right-5 bg-gray-500 text-white px-4 py-2 rounded-lg shadow cursor-pointer hover:bg-gray-700"
             >
                 Download PDF
             </button>

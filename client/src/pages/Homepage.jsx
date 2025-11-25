@@ -36,26 +36,76 @@ function Homepage() {
   const [activeForm, setActiveForm] = useState("event");
   const [showCropper, setShowCropper] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState(null);
+  const [errors, setErrors] = useState({});
+  const [errorsStall, setErrorsStall] = useState({});
 
   const scrollToForm = () => {
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  //validations of event form
+  const validateEventForm = () => {
+    let newErrors = {};
+
+    if (!formData.name.trim()) newErrors.name = "Full Name is required";
+    if (!formData.phone.trim()) newErrors.phone = "Phone number is required";
+    else if (!/^[0-9]{10}$/.test(formData.phone)) newErrors.phone = "Enter 10 digit number";
+
+    if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = "Enter a valid email";
+    }
+
+    if (!formData.place.trim()) newErrors.place = "Place is required";
+    if (!formData.cName.trim()) newErrors.cName = "Company Name is required";
+    if (!formData.photo) newErrors.photo = "Upload a photo";
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+
+  //validation of stall form
+  const validateStallForm = () => {
+    let newErrors = {};
+
+    if (!stallData.name.trim()) newErrors.name = "Full Name is required";
+    if (!stallData.companyName.trim()) newErrors.companyName = "Company Name is required";
+    if (!stallData.position.trim()) newErrors.position = "Position is required";
+
+    if (!stallData.phone.trim()) {
+      newErrors.phone = "Phone number is required";
+    } else if (!/^[0-9]{10}$/.test(stallData.phone)) {
+      newErrors.phone = "Enter 10 digit number";
+    }
+
+    if (stallData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(stallData.email))
+      newErrors.email = "Enter valid email";
+
+    if (!stallData.place.trim()) newErrors.place = "Place is required";
+
+    setErrorsStall(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   // Handle input change
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    // Clear error for that field while typing
+    setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
   const handleStallChange = (e) => {
     const { name, value } = e.target;
     setStallData((prev) => ({ ...prev, [name]: value }));
+    // clear error instantly on typing
+    setErrorsStall((prev) => ({ ...prev, [name]: "" }));
   };
 
   // Handle form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    if (!validateEventForm()) return;
     try {
       const fd = new FormData();
 
@@ -102,6 +152,7 @@ function Homepage() {
 
   const handleStallSubmit = async (e) => {
     e.preventDefault();
+    if (!validateStallForm()) return;
     try {
       const res = await registerStall(stallData);
       console.log(res.data);
@@ -184,30 +235,35 @@ function Homepage() {
             />
           )}
           {/* ======= EVENT | STALL SWITCHER ======= */}
-          <div className="flex items-center gap-6 mb-6 sm:mb-10">
-            <button
-              onClick={() => setActiveForm("event")}
-              className={`
-          text-xl sm:text-4xl font-extrabold uppercase tracking-tight transition-all
-          ${activeForm === "event" ? "text-black scale-110" : "text-gray-400 scale-95"}
-        `}
-            >
-              Event
-            </button>
+<div className="flex items-center gap-6 mb-6 sm:mb-10">
+  <button
+    onClick={() => setActiveForm("event")}
+    className={`
+      text-xl sm:text-4xl font-extrabold uppercase tracking-tight transition-all duration-300
+      ${activeForm === "event"
+        ? "text-black translate-y-0 cursor-default"
+        : "text-gray-400 cursor-pointer hover:-translate-y-1 hover:text-black"
+      }
+    `}
+  >
+    Event
+  </button>
 
-            <span className="text-gray-400 font-bold text-xl sm:text-4xl">|</span>
+  <span className="text-gray-400 text-xl sm:text-6xl -translate-y sm:-translate-y-1">|</span>
 
-            <button
-              onClick={() => setActiveForm("stall")}
-              className={`
-          text-xl sm:text-4xl font-extrabold uppercase tracking-tight transition-all
-          ${activeForm === "stall" ? "text-black scale-110" : "text-gray-400 scale-95"}
-        `}
-            >
-              Stall
-            </button>
-          </div>
-
+  <button
+    onClick={() => setActiveForm("stall")}
+    className={`
+      text-xl sm:text-4xl font-extrabold uppercase tracking-tight transition-all duration-300
+      ${activeForm === "stall"
+        ? "text-black translate-y-0 cursor-default"
+        : "text-gray-400 cursor-pointer hover:-translate-y-1 hover:text-black"
+      }
+    `}
+  >
+    Stall
+  </button>
+</div>
           {/* =================== EVENT FORM =================== */}
           {activeForm === "event" && (
             <div className="w-full max-w-2xl bg-white shadow-xl rounded-3xl p-10 animate-fadeIn">
@@ -235,9 +291,11 @@ function Homepage() {
                       value={formData.name}
                       onChange={handleChange}
                       placeholder="Jane D'Souza"
-                      required
-                      className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 
-                focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all duration-300 outline-none"
+
+                      className={`w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 
+                    focus:bg-white focus:border-blue-400 hover:bg-white   focus:ring-4 focus:ring-blue-100 transition-all duration-300 outline-none
+                ${errors.name ? "border-red-500 bg-red-50" : "border-gray-200 bg-gray-50"}
+                `}
                     />
                   </div>
 
@@ -246,14 +304,18 @@ function Homepage() {
                       Whatsapp Number <span className="text-red-500">*</span>
                     </label>
                     <input
-                      type="text"
+                      type="tel"
+                      inputMode="numeric"
+                      pattern="[0-9]{10}"
+                      maxLength="10"
                       name="phone"
                       value={formData.phone}
                       onChange={handleChange}
                       placeholder="+91 99999 88888"
-                      required
-                      className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 
-                focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all duration-300 outline-none"
+                      className={`w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 
+                focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all duration-300 outline-none
+                ${errors.phone ? "border-red-500 bg-red-50" : "border-gray-200 bg-gray-50"}
+                `}
                     />
                   </div>
                 </div>
@@ -270,8 +332,10 @@ function Homepage() {
                       value={formData.email}
                       onChange={handleChange}
                       placeholder="yourname@company.com"
-                      className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 
-                focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all duration-300 outline-none"
+                      className={`w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 
+                focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all duration-300 outline-none
+                ${errors.email ? "border-red-500 bg-red-50" : "border-gray-200 bg-gray-50"}
+                `}
                     />
                   </div>
 
@@ -285,9 +349,10 @@ function Homepage() {
                       value={formData.place}
                       onChange={handleChange}
                       placeholder="Kochi"
-                      required
-                      className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 
-                focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all duration-300 outline-none"
+                      className={`w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 
+                focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all duration-300 outline-none
+                ${errors.place ? "border-red-500 bg-red-50" : "border-gray-200 bg-gray-50"}
+                `}
                     />
                   </div>
                 </div>
@@ -296,7 +361,7 @@ function Homepage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-extrabold text-gray-700 mb-2">
-                      Company Name
+                      Company Name <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
@@ -304,8 +369,10 @@ function Homepage() {
                       value={formData.cName}
                       onChange={handleChange}
                       placeholder="Innovate Solutions Pvt. Ltd."
-                      className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 
-                focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all duration-300 outline-none"
+                      className={`w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 
+                focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all duration-300 outline-none
+                ${errors.cName ? "border-red-500 bg-red-50" : "border-gray-200 bg-gray-50"}
+                `}
                     />
                   </div>
 
@@ -324,23 +391,30 @@ function Homepage() {
                     />
                   </div>
                 </div>
-                <div>
+                <div className="mb-6">
                   <label className="block text-sm font-extrabold text-gray-700 mb-2">
-                    Upload Your Photo
+                    Upload Your Photo <span className="text-red-500">*</span>
                   </label>
-                  <div className="flex items-center w-full border border-gray-300 rounded-lg overflow-hidden bg-white">
 
+                  <div
+                    className={`flex items-center w-full rounded-lg overflow-hidden
+    transition-all duration-300
+    ${errors.photo ? "border border-red-500 bg-red-50" : "border border-gray-300 bg-white"}`}
+                  >
                     {/* Upload Button */}
                     <button
                       type="button"
                       onClick={() => photoRef.current.click()}
-                      className="bg-gray-600 text-white px-4 py-2 text-sm hover:bg-gray-700 flex items-center gap-2"
+                      className="bg-gray-600 text-white px-4 py-2 text-sm hover:bg-gray-700 flex items-center gap-2 cursor-pointer"
                     >
                       Upload File
                     </button>
 
                     {/* File Name */}
-                    <span className="px-3 py-2 text-sm text-gray-600">
+                    <span
+                      className={`px-3 py-2 text-sm
+                      ${errors.photo ? "text-red-600" : "text-gray-600"}`}
+                    >
                       {formData.photo ? formData.photo.name : "No file chosen"}
                     </span>
 
@@ -351,16 +425,22 @@ function Homepage() {
                       accept="image/*"
                       ref={photoRef}
                       onChange={(e) => {
-                        const file = e.target.files[0]
-                        if (!file) {
-                          return;
-                        }
+                        const file = e.target.files[0];
+                        if (!file) return;
+
+                        // Clear error instantly when selecting a new image
+                        setErrors((prev) => ({ ...prev, photo: "" }));
+
                         setSelectedPhoto(file);
                         setShowCropper(true);
                       }}
                       className="hidden"
                     />
                   </div>
+
+                  {errors.photo && (
+                    <p className="text-xs text-red-600 mt-1">{errors.photo}</p>
+                  )}
                 </div>
 
                 {/* Submit Button */}
@@ -370,10 +450,10 @@ function Homepage() {
                     className="relative inline-block px-10 py-3 cursor-pointer rounded-full overflow-hidden group focus:outline-none"
                   >
                     <span className="absolute inset-0 rounded-full bg-linear-to-r from-yellow-300 to-green-400 transition-opacity 
-              duration-700 ease-in-out opacity-100 group-hover:opacity-0" />
+                    duration-700 ease-in-out opacity-100 group-hover:opacity-0" />
 
                     <span className="absolute inset-0 rounded-full bg-linear-to-r from-green-400 to-yellow-300 transition-opacity 
-              duration-700 ease-in-out opacity-0 group-hover:opacity-100" />
+                    duration-700 ease-in-out opacity-0 group-hover:opacity-100" />
 
                     <span className="relative z-10 text-black font-semibold text-sm">
                       Register
@@ -415,14 +495,16 @@ function Homepage() {
                       value={stallData.name}
                       onChange={handleStallChange}
                       placeholder="John Mathew"
-                      className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all"
-                      required
+                      className={`w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 
+                focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all duration-300 outline-none
+                ${errorsStall.name ? "border-red-500 bg-red-50" : "border-gray-200 bg-gray-50"}
+                `}
                     />
                   </div>
 
                   <div>
                     <label className="block text-sm font-extrabold text-gray-700 mb-2">
-                      Company Name
+                      Company Name <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
@@ -430,14 +512,17 @@ function Homepage() {
                       value={stallData.companyName}
                       onChange={handleStallChange}
                       placeholder="Tech Innovations Pvt Ltd"
-                      className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all"
+                      className={`w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 
+                focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all duration-300 outline-none
+                ${errorsStall.companyName ? "border-red-500 bg-red-50" : "border-gray-200 bg-gray-50"}
+                `}
                     />
                   </div>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-extrabold text-gray-700 mb-2">
-                      Position
+                      Position <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
@@ -445,7 +530,10 @@ function Homepage() {
                       value={stallData.position}
                       onChange={handleStallChange}
                       placeholder="CEO / Founder"
-                      className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all"
+                      className={`w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 
+                focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all duration-300 outline-none
+                ${errorsStall.position ? "border-red-500 bg-red-50" : "border-gray-200 bg-gray-50"}
+                `}
                     />
                   </div>
 
@@ -455,13 +543,18 @@ function Homepage() {
                       Whatsapp Number <span className="text-red-500">*</span>
                     </label>
                     <input
-                      type="text"
+                      type="tel"
+                      inputMode="numeric"
+                      pattern="[0-9]{10}"
+                      maxLength="10"
                       name="phone"
                       value={stallData.phone}
                       onChange={handleStallChange}
                       placeholder="+91 98765 43210"
-                      className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all"
-                      required
+                      className={`w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 
+                focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all duration-300 outline-none
+                ${errorsStall.phone ? "border-red-500 bg-red-50" : "border-gray-200 bg-gray-50"}
+                `}
                     />
                   </div>
                 </div>
@@ -477,7 +570,10 @@ function Homepage() {
                       value={stallData.email}
                       onChange={handleStallChange}
                       placeholder="yourmail@domain.com"
-                      className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all"
+                      className={`w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 
+                focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all duration-300 outline-none
+                ${errorsStall.email ? "border-red-500 bg-red-50" : "border-gray-200 bg-gray-50"}
+                `}
                     />
                   </div>
 
@@ -492,8 +588,10 @@ function Homepage() {
                       value={stallData.place}
                       onChange={handleStallChange}
                       placeholder="Kozhikode"
-                      className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all"
-                      required
+                      className={`w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 
+                focus:bg-white focus:border-blue-400 hover:bg-white focus:ring-4 focus:ring-blue-100 transition-all duration-300 outline-none
+                ${errorsStall.place ? "border-red-500 bg-red-50" : "border-gray-200 bg-gray-50"}
+                `}
                     />
                   </div>
                 </div>

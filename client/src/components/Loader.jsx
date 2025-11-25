@@ -2,7 +2,7 @@ import { ThreeDots } from "react-loader-spinner";
 
 export default function Loader() {
   return (
-    <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-[9999]">
+    <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-index: 9999">
       <ThreeDots
         height="80"
         width="80"
