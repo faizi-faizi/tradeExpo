@@ -68,8 +68,8 @@ function ViewExcel() {
     }
 
     const worksheetData =
-    activeTab === "event"
-      ? dataToExport.map((user) => ({
+      activeTab === "event"
+        ? dataToExport.map((user) => ({
           Name: user.name,
           Email: user.email,
           Phone: user.phone,
@@ -80,7 +80,7 @@ function ViewExcel() {
             ? new Date(user.createdAt).toLocaleString()
             : "-",
         }))
-      : dataToExport.map((user) => ({
+        : dataToExport.map((user) => ({
           Name: user.name,
           Email: user.email,
           Phone: user.phone,
@@ -95,8 +95,8 @@ function ViewExcel() {
     const worksheet = XLSX.utils.json_to_sheet(worksheetData);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(
-      workbook, 
-      worksheet, 
+      workbook,
+      worksheet,
       activeTab === "event" ? "Event Bookings" : "Stall Bookings"
     );
 
@@ -106,9 +106,9 @@ function ViewExcel() {
     });
 
     saveAs(
-    blob,
-    activeTab === "event" ? "event_bookings.xlsx" : "stall_bookings.xlsx"
-  );
+      blob,
+      activeTab === "event" ? "event_bookings.xlsx" : "stall_bookings.xlsx"
+    );
   };
 
   return (
@@ -151,7 +151,7 @@ function ViewExcel() {
 
         </div>
       </div>
-      <div className="w-full max-w-6xl">
+      <div className="w-full max-w-7xl">
         <h1 className="text-2xl sm:text-3xl font-bold mt-6 mb-2 text-center sm:text-left">
           Registered Users
         </h1>
@@ -176,6 +176,9 @@ function ViewExcel() {
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">
                   {activeTab === "event" ? "Company Type" : "Position"}
                 </th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">
+                  {activeTab === "event" ? "Cards" : ""}
+                </th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Registered At</th>
               </tr>
             </thead>
@@ -193,7 +196,18 @@ function ViewExcel() {
                     <td className="px-4 py-3 text-sm text-gray-800">
                       {activeTab === "event" ? user.cType : user.position}
                     </td>
-
+                    <td className="px-4 py-3">
+                      {activeTab === "event" && (
+                        <a
+                          href={`/card/${user._id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 underline hover:text-blue-800"
+                        >
+                          View Card
+                        </a>
+                      )}
+                    </td>
                     <td className="px-4 py-3 text-sm text-gray-800">
                       {user.createdAt ? new Date(user.createdAt).toLocaleString() : "-"}
                     </td>
@@ -225,16 +239,26 @@ function ViewExcel() {
                 <div className="text-xs text-gray-600 mb-1">Email: {user.email || "-"}</div>
                 <div className="text-xs text-gray-600 mb-1">Place: {user.place}</div>
                 <div className="text-xs text-gray-600 mb-1">
-  Company Name: {activeTab === "event" ? user.cName : user.companyName}
-</div>
+                  Company Name: {activeTab === "event" ? user.cName : user.companyName}
+                </div>
 
-<div className="text-xs text-gray-600 mb-1">
-  {activeTab === "event"
-    ? `Company Type: ${user.cType}`
-    : `Position: ${user.position}`}
-</div>
+                <div className="text-xs text-gray-600 mb-1">
+                  {activeTab === "event"
+                    ? `Company Type: ${user.cType}`
+                    : `Position: ${user.position}`}
+                </div>
                 <div className="text-xs text-gray-500 mt-2">
                   Registered: {user.createdAt ? new Date(user.createdAt).toLocaleString() : "-"}
+                </div>
+                <div className="text-center mt-2">
+                  {activeTab === "event" && (
+                    <button
+                      onClick={() => navigate(`/card/${user._id}`)}
+                      className="w-full bg-gray-300 text-gray-900 text-xs font-medium py-2 rounded-md hover:bg-gray-400 transition"
+                    >
+                      View Card
+                    </button>
+                  )}
                 </div>
               </div>
             ))
