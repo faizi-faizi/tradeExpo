@@ -25,7 +25,7 @@ const addUser = async (req, res) => {
 
     const cardUrl = `${CLIENT_URL}/card/${newUser._id}`;
     newUser.cardUrl = cardUrl;
-    newUser.qr = await QRCode.toDataURL(cardUrl);
+    newUser.qr = await QRCode.toDataURL(cardUrl); 
 
     await newUser.save();
 
