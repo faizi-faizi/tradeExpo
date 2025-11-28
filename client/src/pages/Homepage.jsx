@@ -217,7 +217,7 @@ function Homepage() {
 
       {/* Booking Form Section */}
       <section ref={formRef} >
-        <div className="flex flex-col items-center justify-start min-h-screen bg-gray-50 px-4 py-6 sm:py-16">
+        <div className="flex flex-col items-center justify-start min-h-screen bg-gray-50 px-4 py-6 sm:py-10">
           {showCropper && (
             <ImageCropper
               photo={selectedPhoto}
@@ -265,7 +265,7 @@ function Homepage() {
 </div>
           {/* =================== EVENT FORM =================== */}
           {activeForm === "event" && (
-            <div className="w-full max-w-2xl bg-white shadow-xl rounded-3xl p-10 animate-fadeIn">
+            <div className="w-full max-w-2xl bg-white shadow-xl rounded-3xl py-3 sm px-10 sm:p-10 animate-fadeIn">
 
               <div className="text-center mb-0 sm:mb-10">
                 <h2 className="text-2xl sm:text-7xl font-extrabold text-gray-800 mb-3 py-2 uppercase tracking-tight">
@@ -470,7 +470,7 @@ function Homepage() {
 
           {/* =================== STALL BOOKING FORM =================== */}
           {activeForm === "stall" && (
-            <div className="w-full max-w-2xl bg-white shadow-xl rounded-3xl p-10 animate-fadeIn">
+            <div className="w-full max-w-2xl bg-white shadow-xl rounded-3xl py-3 sm px-10 sm:p-10 animate-fadeIn">
               <div className="text-center mb-0 sm:mb-10">
                 <h2 className="text-2xl sm:text-7xl font-extrabold text-gray-800 mb-3 py-2 uppercase tracking-tight">
                   Book Your Stall Now
