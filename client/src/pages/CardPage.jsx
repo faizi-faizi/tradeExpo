@@ -18,27 +18,27 @@ export default function CardPage() {
 
     if (!user) return <div className="p-10 text-center">Loading...</div>;
 
-   const downloadPDF = async () => {
-    const node = cardRef.current;
+    const downloadPDF = async () => {
+        const node = cardRef.current;
 
-    const width = 1080;
-    const height = 1350;
+        const width = 1080;
+        const height = 1350;
 
-    const dataUrl = await htmlToImage.toPng(node, {
-        pixelRatio: 1,
-        width,
-        height,
-    });
+        const dataUrl = await htmlToImage.toPng(node, {
+            pixelRatio: 1,
+            width,
+            height,
+        });
 
-    const pdf = new jsPDF({
-        orientation: "portrait",
-        unit: "px",
-        format: [width, height],
-    });
+        const pdf = new jsPDF({
+            orientation: "portrait",
+            unit: "px",
+            format: [width, height],
+        });
 
-    pdf.addImage(dataUrl, "PNG", 0, 0, width, height);
-    pdf.save(`${user.name}-card.pdf`);
-};
+        pdf.addImage(dataUrl, "PNG", 0, 0, width, height);
+        pdf.save(`${user.name}-card.pdf`);
+    };
 
 
     return (
@@ -77,21 +77,21 @@ export default function CardPage() {
 
             {/* VISIBLE SCALED-DOWN CARD */}
             <div
-    className="transform scale-[0.28] sm:scale-[0.50] origin-center"
-    style={{
-        width: "1080px",
-        height: "1350px",
-    }}
->
+                className="transform scale-[0.28] sm:scale-[0.50] origin-center"
+                style={{
+                    width: "1080px",
+                    height: "1350px",
+                }}
+            >
                 {/* CARD used for PDF */}
                 <div
-    ref={cardRef}
-    style={{
-        width: "1080px",
-        height: "1350px",
-        position: "relative"
-    }}
->
+                    ref={cardRef}
+                    style={{
+                        width: "1080px",
+                        height: "1350px",
+                        position: "relative"
+                    }}
+                >
 
                     {/* FRAME */}
                     <img
@@ -136,10 +136,10 @@ export default function CardPage() {
                             src={user.qr}
                             style={{
                                 position: "absolute",
-                                bottom: "80px",
-                                left: "80px",
-                                width: "220px",
-                                padding: "10px",
+                                bottom: "50px",
+                                left: "50px",
+                                width: "150px",
+
                                 background: "white",
                                 borderRadius: "10px",
                                 boxShadow: "0 4px 10px rgba(0,0,0,0.3)",
