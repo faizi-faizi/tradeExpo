@@ -18,24 +18,27 @@ export default function CardPage() {
 
     if (!user) return <div className="p-10 text-center">Loading...</div>;
 
-    const downloadPDF = async () => {
-        const node = cardRef.current;
+   const downloadPDF = async () => {
+    const node = cardRef.current;
 
-        const dataUrl = await htmlToImage.toPng(node, {
-            pixelRatio: 1,
-            width: 1600,
-            height: 2400,
-        });
+    const width = 1080;
+    const height = 1350;
 
-        const pdf = new jsPDF({
-            orientation: "portrait",
-            unit: "px",
-            format: [1600, 2400],
-        });
+    const dataUrl = await htmlToImage.toPng(node, {
+        pixelRatio: 1,
+        width,
+        height,
+    });
 
-        pdf.addImage(dataUrl, "PNG", 0, 0, 1600, 2400);
-        pdf.save(`${user.name}-card.pdf`);
-    };
+    const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "px",
+        format: [width, height],
+    });
+
+    pdf.addImage(dataUrl, "PNG", 0, 0, width, height);
+    pdf.save(`${user.name}-card.pdf`);
+};
 
 
     return (
@@ -74,21 +77,21 @@ export default function CardPage() {
 
             {/* VISIBLE SCALED-DOWN CARD */}
             <div
-                className="transform scale-[0.20] sm:scale-[0.30] origin-center"
-                style={{
-                    width: "1600px",
-                    height: "2400px",
-                }}
-            >
+    className="transform scale-[0.28] sm:scale-[0.50] origin-center"
+    style={{
+        width: "1080px",
+        height: "1350px",
+    }}
+>
                 {/* CARD used for PDF */}
                 <div
-                    ref={cardRef}
-                    style={{
-                        width: "1600px",
-                        height: "2400px",
-                        position: "relative"
-                    }}
-                >
+    ref={cardRef}
+    style={{
+        width: "1080px",
+        height: "1350px",
+        position: "relative"
+    }}
+>
 
                     {/* FRAME */}
                     <img
@@ -101,14 +104,14 @@ export default function CardPage() {
                     <div
                         className="absolute text-right bg-[#713F98] px-7 py-4 text-white rounded-l-xl shadow"
                         style={{
-                            top: "1300px",
-                            left: "50%",           // Center horizontally
-                            transform: "translateX(-100%)", // Move LEFT from center
+                            top: "750px",
+                            left: "50%",
+                            transform: "translateX(-100%)",
                         }}
                     >
-                        <h1 className="text-7xl">{user.name}</h1>
+                        <h1 className="text-4xl font-semibold" style={{ fontFamily: "Poppins, sans-serif" }}>{user.name}</h1>
                         {user.cName && (
-                            <p className="text-5xl mt-2 font-semibold">{user.cName}</p>
+                            <p className="text-3xl mt-2 font" style={{ fontFamily: "Poppins, sans-serif" }}>{user.cName}</p>
                         )}
                     </div>
 
@@ -118,9 +121,9 @@ export default function CardPage() {
                             src={user.photo}
                             style={{
                                 position: "absolute",
-                                top: "1000px",
+                                top: "650px",
                                 left: "50%",
-                                height: "750px",
+                                height: "400px",
                                 borderRadius: "20px",
                                 objectFit: "cover",
                             }}

@@ -4,7 +4,7 @@ const fs = require("fs");
 const User = require("../model/userModel");
 const QRCode = require("qrcode")
 
-
+// const SERVER_URL = "http://localhost:8080";
 const SERVER_URL = "https://admin.bkfinder.com";
 const CLIENT_URL = "https://bkfinder.com";
 
