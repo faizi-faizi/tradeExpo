@@ -192,7 +192,7 @@ function Homepage() {
           width: "100%",
         }}
       >
-        <div className="-mb-70 sm:-mt-14 md:-mt-70 space-y- sm:space-y-0">
+        <div className="mt-85 sm:-mt-14 md:-mt-70 ">
           <h1
             className="
     font-extrabold tracking-widest text-white
@@ -207,7 +207,7 @@ function Homepage() {
             <span className="inline sm:block text-2xl sm:text-6xl md:text-8xl">
               LARGEST
             </span>{" "}
-            <span className="inline sm:block">TRADE EXPO</span>
+            <span className="block">TRADE EXPO</span>
           </h1>
 
           <button
