@@ -133,10 +133,7 @@ function Homepage() {
       setFormData({
         name: "",
         phone: "",
-        email: "",
         place: "",
-        cName: "",
-        cType: "",
         photo: null,
       });
       if (photoRef.current) {
@@ -192,7 +189,7 @@ function Homepage() {
           width: "100%",
         }}
       >
-        <div className="mt-85 sm:-mt-14 md:-mt-70 ">
+        <div className="mt-85 sm:-mt-14 md:mt-0">
           <h1
             className="
     font-extrabold tracking-widest text-white
