@@ -19,18 +19,20 @@ export default function CardPage() {
  
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-6">
-      <button
-        onClick={downloadImage}
-        className="mb-6 bg-gray-600 text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-gray-800"
-      >
-        Download Card
-      </button>
+      
 
       <img
         src={imageUrl}
         alt="Card"
         className="w-[280px] sm:w-[360px] md:w-[420px] shadow-xl rounded"
       />
+
+      <button
+        onClick={downloadImage}
+        className="mt-8 bg-gray-600 text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-gray-800"
+      >
+        Download Card
+      </button>
     </div>
   );
 }
