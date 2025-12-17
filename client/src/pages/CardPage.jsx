@@ -3,87 +3,111 @@ import { useParams } from "react-router-dom";
 import { getUserById } from "../api/userApi";
 import * as htmlToImage from "html-to-image";
 
-/* Utility: wait for all images */
+/* ---------------- utils ---------------- */
+const toBase64 = async (url) => {
+  const res = await fetch(url, { mode: "cors" });
+  const blob = await res.blob();
+
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result);
+    reader.readAsDataURL(blob);
+  });
+};
+
 const waitForImages = async (node) => {
-  const images = node.querySelectorAll("img");
-
+  const imgs = node.querySelectorAll("img");
   await Promise.all(
-    [...images].map((img) => {
-      if (img.complete && img.naturalWidth !== 0) {
-        return Promise.resolve();
-      }
-
-      return new Promise((resolve) => {
-        img.onload = resolve;
-        img.onerror = resolve;
-      });
-    })
+    [...imgs].map(
+      (img) =>
+        img.complete && img.naturalWidth
+          ? Promise.resolve()
+          : new Promise((r) => {
+              img.onload = r;
+              img.onerror = r;
+            })
+    )
   );
 };
 
+/* ---------------- component ---------------- */
 export default function CardPage() {
   const { id } = useParams();
-  const [user, setUser] = useState(null);
-  const [cardImage, setCardImage] = useState(null);
   const cardRef = useRef(null);
 
-  /*  Fetch user  */
+  const [user, setUser] = useState(null);
+  const [assets, setAssets] = useState(null);
+  const [cardImage, setCardImage] = useState(null);
+
+  /* Fetch user */
   useEffect(() => {
     getUserById(id)
       .then((res) => setUser(res.data))
       .catch(console.error);
   }, [id]);
 
-  /* Generate PNG (1080 × 1350) */
+  /* Load assets as base64 */
   useEffect(() => {
-    if (!user || cardImage) return;
+    if (!user) return;
 
-    const generateImage = async () => {
+    const loadAssets = async () => {
+      const frame = await toBase64(
+        `${import.meta.env.VITE_BASE_URL}/frame/frame.jpg`
+      );
+
+      const photo = user.photo ? await toBase64(user.photo) : null;
+
+      setAssets({
+        frame,
+        photo,
+        qr: user.qr, // already base64
+      });
+    };
+
+    loadAssets();
+  }, [user]);
+
+  /* Generate final PNG */
+  useEffect(() => {
+    if (!assets || cardImage) return;
+
+    const generate = async () => {
       const node = cardRef.current;
       if (!node) return;
 
-      // wait for images + layout paint
       await waitForImages(node);
-      await new Promise((r) => requestAnimationFrame(() => r()));
+      await new Promise((r) => requestAnimationFrame(r));
 
-      const dataUrl = await htmlToImage.toPng(node, {
+      const png = await htmlToImage.toPng(node, {
         width: 1080,
         height: 1350,
         pixelRatio: 1,
         cacheBust: true,
-        useCORS: true,
       });
 
-      setCardImage(dataUrl);
+      setCardImage(png);
     };
 
-    generateImage();
-  }, [user, cardImage]);
+    generate();
+  }, [assets, cardImage]);
 
-  if (!user) {
-    return <div className="p-10 text-center">Loading...</div>;
-  }
+  if (!user) return <div className="p-10 text-center">Loading…</div>;
 
-  /* Download PNG */
   const downloadImage = () => {
-    if (!cardImage) return;
-
     const a = document.createElement("a");
     a.href = cardImage;
     a.download = `${user.name}-card.png`;
-    document.body.appendChild(a);
     a.click();
-    a.remove();
   };
 
   return (
-    <div className="relative w-full min-h-screen bg-gray-100 flex flex-col items-center justify-start py-20">
+    <div className="relative w-full min-h-screen bg-gray-100 py-20 flex flex-col items-center">
 
-      {/* DOWNLOAD BUTTON */}
+      {/* DOWNLOAD */}
       {cardImage && (
         <button
           onClick={downloadImage}
-          className="fixed top-5 right-5 z-20 bg-gray-700 text-white px-4 py-2 rounded-lg shadow hover:bg-gray-900"
+          className="fixed top-5 right-5 z-20 bg-gray-800 text-white px-4 py-2 rounded-lg shadow"
         >
           Download Card
         </button>
@@ -91,28 +115,23 @@ export default function CardPage() {
 
       {/* PREVIEW */}
       {cardImage && (
-        <div className="w-full flex justify-center px-4">
-          <img
-            src={cardImage}
-            alt="Card Preview"
-            className="max-w-full max-h-[75vh] object-contain shadow-xl rounded"
-          />
-        </div>
+        <img
+          src={cardImage}
+          alt="Preview"
+          className="
+        shadow-xl rounded
+        w-[280px]
+        sm:w-[360px]
+        md:w-[420px]
+        lg:w-[480px]
+        object-contain
+      "
+        />
       )}
 
-      {/* OFFSCREEN CARD (USED ONLY FOR IMAGE GENERATION) */}
-      {!cardImage && (
-        <div
-          style={{
-            position: "fixed",
-            top: "-2000px",
-            left: "-2000px",
-            width: "1080px",
-            height: "1350px",
-            background: "white",
-            zIndex: -1,
-          }}
-        >
+      {/* OFFSCREEN RENDER */}
+      {!cardImage && assets && (
+        <div style={{ position: "fixed", top: "-3000px", left: "-3000px" }}>
           <div
             ref={cardRef}
             style={{
@@ -124,15 +143,14 @@ export default function CardPage() {
           >
             {/* FRAME */}
             <img
-              src={`${import.meta.env.VITE_BASE_URL}/frame/frame.jpg`}
-              crossOrigin="anonymous"
+              src={assets.frame}
               className="absolute inset-0 w-full h-full"
-              alt="Frame"
+              alt=""
             />
 
-            {/* NAME + LOCATION */}
+            {/* NAME */}
             <div
-              className="absolute text-right bg-[#713F98] px-7 py-4 text-white rounded-l-xl shadow"
+              className="absolute text-right bg-[#713F98] px-7 py-4 text-white rounded-l-xl"
               style={{
                 top: "750px",
                 left: "50%",
@@ -140,19 +158,14 @@ export default function CardPage() {
               }}
             >
               <h1 className="text-4xl font-semibold">{user.name}</h1>
-              {(user.place || user.cName) && (
-                <p className="text-3xl mt-2">
-                  {user.place || user.cName}
-                </p>
-              )}
+              {user.place && <p className="text-3xl mt-2">{user.place}</p>}
             </div>
 
-            {/* USER PHOTO */}
-            {user.photo && (
+            {/* PHOTO */}
+            {assets.photo && (
               <img
-                src={user.photo}
-                crossOrigin="anonymous"
-                alt="User"
+                src={assets.photo}
+                alt=""
                 style={{
                   position: "absolute",
                   top: "650px",
@@ -164,12 +177,11 @@ export default function CardPage() {
               />
             )}
 
-            {/* QR CODE */}
-            {user.qr && (
+            {/* QR */}
+            {assets.qr && (
               <img
-                src={user.qr}
-                crossOrigin="anonymous"
-                alt="QR"
+                src={assets.qr}
+                alt=""
                 style={{
                   position: "absolute",
                   bottom: "50px",
