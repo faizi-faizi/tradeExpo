@@ -192,19 +192,19 @@ function Homepage() {
         <div className="mt-85 sm:-mt-14 md:mt-0">
           <h1
             className="
-    font-extrabold tracking-widest text-white
-    drop-shadow-[0_3px_6px_rgba(0,0,0,0.7)]
-    text-lg
-    sm:text-3xl
-    md:text-5xl
-    whitespace-nowrap
-  "
+              font-extrabold tracking-widest text-white
+              drop-shadow-[0_3px_6px_rgba(0,0,0,0.7)]
+              text-lg
+              sm:text-3xl
+              md:text-5xl
+              whitespace-nowrap
+            "
           >
-            <span className="inline sm:block">KERALA&apos;S</span>{" "}
-            <span className="inline sm:block text-2xl sm:text-6xl md:text-8xl">
-              LARGEST
-            </span>{" "}
-            <span className="block">TRADE EXPO</span>
+          <span className="inline sm:block">KERALA&apos;S</span>{" "}
+          <span className="inline sm:block text-2xl sm:text-6xl md:text-8xl">
+            LARGEST
+          </span>{" "}
+          <span className="block">TRADE EXPO</span>
           </h1>
 
           <button

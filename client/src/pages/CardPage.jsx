@@ -4,6 +4,20 @@ import { getUserById } from "../api/userApi";
 import * as htmlToImage from "html-to-image";
 import jsPDF from "jspdf";
 
+const waitForImages = async (node) => {
+  const images = node.querySelectorAll("img");
+  await Promise.all(
+    [...images].map(
+      img =>
+        img.complete
+          ? Promise.resolve()
+          : new Promise(res => {
+              img.onload = img.onerror = res;
+            })
+    )
+  );
+};
+
 export default function CardPage() {
     const { id } = useParams();
     const [user, setUser] = useState(null);
@@ -19,13 +33,17 @@ export default function CardPage() {
     const downloadPDF = async () => {
         const node = cardRef.current;
 
+        await waitForImages(node);
+        
         const width = 1080;
         const height = 1350;
 
         const dataUrl = await htmlToImage.toPng(node, {
-            pixelRatio: 1,
+            pixelRatio: 2,
             width,
             height,
+            cacheBust: true,
+            useCORS: true,
         });
 
         const pdf = new jsPDF({
@@ -87,7 +105,8 @@ export default function CardPage() {
                     style={{
                         width: "1080px",
                         height: "1350px",
-                        position: "relative"
+                        position: "relative",
+                        transform: "none"
                     }}
                 >
 
