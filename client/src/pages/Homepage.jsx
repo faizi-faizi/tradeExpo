@@ -300,7 +300,7 @@ function Homepage() {
                     value={formData.name}
                     onChange={handleChange}
                     placeholder="Jane D'Souza"
-
+                    maxLength={17} 
                     className={`w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-gray-700 placeholder-gray-300 
                     focus:bg-white focus:border-blue-400 hover:bg-white   focus:ring-4 focus:ring-blue-100 transition-all duration-300 outline-none
                 ${errors.name ? "border-red-500 bg-red-50" : "border-gray-200 bg-gray-50"}
@@ -316,7 +316,7 @@ function Homepage() {
                     type="tel"
                     inputMode="numeric"
                     pattern="[0-9]{10}"
-                    maxLength="10"
+                    maxLength="13"
                     name="phone"
                     value={formData.phone}
                     onChange={handleChange}

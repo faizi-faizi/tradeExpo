@@ -1,215 +1,36 @@
-import { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
-import { getUserById } from "../api/userApi";
-import * as htmlToImage from "html-to-image";
 
-/* ---------- utils ---------- */
-const toBase64 = async (url) => {
-  const res = await fetch(url, { mode: "cors" });
-  const blob = await res.blob();
-
-  return new Promise((resolve) => {
-    const reader = new FileReader();
-    reader.onloadend = () => resolve(reader.result);
-    reader.readAsDataURL(blob);
-  });
-};
-
-const decodeImages = async (node) => {
-  const imgs = node.querySelectorAll("img");
-
-  await Promise.all(
-    [...imgs].map(async (img) => {
-      if (!img.complete) {
-        await new Promise((r) => {
-          img.onload = r;
-          img.onerror = r;
-        });
-      }
-
-      // CRITICAL: force decode (mobile fix)
-      if (img.decode) {
-        try {
-          await img.decode();
-        } catch {
-          /* ignore */
-        }
-      }
-    })
-  );
-};
-
-/* ---------- component ---------- */
 export default function CardPage() {
   const { id } = useParams();
-  const cardRef = useRef(null);
 
-  const [user, setUser] = useState(null);
-  const [assets, setAssets] = useState(null);
-  const [cardImage, setCardImage] = useState(null);
+  const imageUrl = `${import.meta.env.VITE_BASE_URL}/api/card/image/${id}`;
 
-  /* Fetch user */
-  useEffect(() => {
-    getUserById(id)
-      .then((res) => setUser(res.data))
-      .catch(console.error);
-  }, [id]);
+  const downloadImage = async () => {
+    const res = await fetch(imageUrl);
+    const blob = await res.blob();
 
-  /* Load images as base64 */
-  useEffect(() => {
-    if (!user) return;
-
-    (async () => {
-      const frame = await toBase64(
-        `${import.meta.env.VITE_BASE_URL}/frame/frame.jpg`
-      );
-
-      const photo = user.photo ? await toBase64(user.photo) : null;
-
-      setAssets({
-        frame,
-        photo,
-        qr: user.qr, // already base64
-      });
-    })();
-  }, [user]);
-
-  /* Generate PNG */
-  useEffect(() => {
-    if (!assets || cardImage) return;
-
-    (async () => {
-      const node = cardRef.current;
-      if (!node) return;
-
-      // 🔥 wait + decode + layout
-      await decodeImages(node);
-      await new Promise((r) => requestAnimationFrame(r));
-
-      const png = await htmlToImage.toPng(node, {
-        width: 1080,
-        height: 1350,
-        pixelRatio: 1,
-        cacheBust: true,
-      });
-
-      setCardImage(png);
-    })();
-  }, [assets, cardImage]);
-
-  if (!user) return <div className="p-10 text-center">Loading…</div>;
-
-  const downloadImage = () => {
-    if (!cardImage) return;
+    const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
-    a.href = cardImage;
-    a.download = `${user.name}-card.png`;
+    a.href = url;
+    a.download = "card.png";
     a.click();
+    URL.revokeObjectURL(url);
   };
 
   return (
-    <div className="relative w-full min-h-screen bg-gray-100 py-20 flex flex-col items-center">
-
-      {/* DOWNLOAD */}
-      {cardImage && (
-        <button
-          onClick={downloadImage}
-          className="fixed top-5 right-5 z-20 bg-gray-800 text-white px-4 py-2 rounded-lg shadow"
-        >
-          Download Card
-        </button>
-      )}
-
-      {/* PREVIEW */}
-      {cardImage && (
-        <img
-          src={cardImage}
-          alt="Preview"
-          className="
-            shadow-xl rounded
-            w-[280px]
-            sm:w-[360px]
-            md:w-[420px]
-            lg:w-[480px]
-            object-contain
-          "
-        />
-      )}
-
-      {/* INVISIBLE CARD (ONSREEN, NOT OFFSCREEN) */}
-{!cardImage && assets && (
-  <div
-    style={{
-      position: "absolute",
-      top: 0,
-      left: 0,
-      transform: "scale(0.01)",
-      transformOrigin: "top left",
-      pointerEvents: "none",
-      opacity: 1,
-    }}
-  >
-    <div
-      ref={cardRef}
-      style={{
-        width: "1080px",
-        height: "1350px",
-        position: "relative",
-        background: "white",
-      }}
-    >
-      {/* FRAME */}
-      <img
-        src={assets.frame}
-        className="absolute inset-0 w-full h-full"
-        alt=""
-      />
-
-      {/* NAME */}
-      <div
-        className="absolute text-right bg-[#713F98] px-7 py-4 text-white rounded-l-xl"
-        style={{
-          top: "750px",
-          left: "50%",
-          transform: "translateX(-100%)",
-        }}
+    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-6">
+      <button
+        onClick={downloadImage}
+        className="mb-6 bg-gray-600 text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-gray-800"
       >
-        <h1 className="text-4xl font-semibold">{user.name}</h1>
-        {user.place && <p className="text-3xl mt-2">{user.place}</p>}
-      </div>
+        Download Card
+      </button>
 
-      {/* PHOTO */}
-      {assets.photo && (
-        <img
-          src={assets.photo}
-          style={{
-            position: "absolute",
-            top: "650px",
-            left: "50%",
-            height: "400px",
-            borderRadius: "20px",
-            objectFit: "cover",
-          }}
-        />
-      )}
-
-      {/* QR */}
-      {assets.qr && (
-        <img
-          src={assets.qr}
-          style={{
-            position: "absolute",
-            bottom: "50px",
-            left: "50px",
-            width: "150px",
-            background: "white",
-            borderRadius: "10px",
-          }}
-        />
-      )}
-    </div>
-  </div>
-)}
+      <img
+        src={imageUrl}
+        alt="Card"
+        className="w-[280px] sm:w-[360px] md:w-[420px] shadow-xl rounded"
+      />
     </div>
   );
 }

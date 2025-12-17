@@ -35,6 +35,7 @@ app.use("/api/users", router);
 app.use("/api/auth", authRouter);
 app.use("/api/stall", stallRouter);
 app.use("/api/card-pdf", cardPdfRouter);
+app.use("/api/card", require("./routes/cardImage"));
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => console.log(`SERVER RUNNING → ${PORT}`));
