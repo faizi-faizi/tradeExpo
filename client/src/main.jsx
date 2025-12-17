@@ -5,7 +5,7 @@ import './index.css'
 
 
 // 🚧 Maintenance Mode
-const MAINTENANCE = true;
+const MAINTENANCE = false;
 
 if (MAINTENANCE) {
   document.body.innerHTML = `
