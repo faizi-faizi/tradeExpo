@@ -41,6 +41,7 @@ const addUser = async (req, res) => {
       phone,
       place,
       photo: photoUrl,
+      registrationType: "visitor",
     });
 
     const cardUrl = `${CLIENT_URL}/card/${newUser._id}`;

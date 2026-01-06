@@ -15,7 +15,13 @@ const userSchema = new mongoose.Schema({
   },
   place: {
     type: String,
-    required: true,
+    required: false,
+    default: "",
+  },
+  registrationType: {
+    type: String,
+    enum: ["visitor", "award", "stall"],
+    default: "visitor",
   },
   cName:{
     type: String,

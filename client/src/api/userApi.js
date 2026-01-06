@@ -49,6 +49,15 @@ export const getStalls = () => {
   return API.get("/api/stall/list");
 };
 
+// Business award nomination
+export const registerAward = (data) => {
+  return API.post("/api/awards", data);
+};
+
+export const getAwards = () => {
+  return API.get("/api/awards");
+};
+
 // get single user by id
 export const getUserById = (id) => API.get(`/api/users/${id}`);
 

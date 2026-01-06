@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
-import { getStalls, getUsers } from "../api/userApi";
+import { getStalls, getUsers, getAwards } from "../api/userApi";
 import { useNavigate } from "react-router-dom";
 import { toast, Toaster } from "sonner";
-
 
 function ViewExcel() {
   const [data, setData] = useState([]);
@@ -13,12 +12,12 @@ function ViewExcel() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("event");
   const [stallData, setStallData] = useState([]);
+  const [awardData, setAwardData] = useState([]);
 
   useEffect(() => {
     const loggedIn = localStorage.getItem("isLoggedIn");
     if (!loggedIn) navigate("/login");
   }, [navigate]);
-
 
   useEffect(() => {
     getUsers()
@@ -35,6 +34,11 @@ function ViewExcel() {
       .catch(() => setStallData([]));
   }, []);
 
+  useEffect(() => {
+    getAwards()
+      .then((res) => setAwardData(res.data || []))
+      .catch(() => setAwardData([]));
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("isLoggedIn");
@@ -42,15 +46,14 @@ function ViewExcel() {
     setTimeout(() => navigate("/login"), 800);
   };
 
-
   // Pagination
   const indexOfLastUser = currentPage * usersPerPage;
   const indexOfFirstUser = indexOfLastUser - usersPerPage;
-  const dataToShow = activeTab === "event" ? data : stallData;
+  const dataToShow =
+    activeTab === "event" ? data : activeTab === "stall" ? stallData : awardData;
 
   const currentUsers = dataToShow.slice(indexOfFirstUser, indexOfLastUser);
   const totalPages = Math.max(1, Math.ceil(dataToShow.length / usersPerPage));
-
 
   const handleNextPage = () => {
     if (currentPage < totalPages) setCurrentPage((p) => p + 1);
@@ -61,7 +64,13 @@ function ViewExcel() {
 
   // Download Excel
   const handleDownload = () => {
-    const dataToExport = activeTab === "event" ? data : stallData;
+    const dataToExport =
+      activeTab === "event"
+        ? data
+        : activeTab === "stall"
+          ? stallData
+          : awardData;
+
     if (!dataToExport.length) {
       toast.error("No data to export!");
       return;
@@ -71,33 +80,43 @@ function ViewExcel() {
       activeTab === "event"
         ? dataToExport.map((user) => ({
           Name: user.name,
-          Email: user.email,
           Phone: user.phone,
           Place: user.place,
-          Company_Name: user.cName,
-          Company_Type: user.cType,
           Registered_At: user.createdAt
             ? new Date(user.createdAt).toLocaleString()
             : "-",
         }))
-        : dataToExport.map((user) => ({
-          Name: user.name,
-          Email: user.email,
-          Phone: user.phone,
-          Place: user.place,
-          Company_Name: user.companyName,
-          Position: user.position,
-          Registered_At: user.createdAt
-            ? new Date(user.createdAt).toLocaleString()
-            : "-",
-        }));
+        : activeTab === "stall"
+          ? dataToExport.map((user) => ({
+            Full_Name: user.name,
+            Company_Name: user.companyName,
+            Position: user.position,
+            Phone: user.phone,
+            Place: user.place,
+            Registered_At: user.createdAt
+              ? new Date(user.createdAt).toLocaleString()
+              : "-",
+          }))
+          : dataToExport.map((user) => ({
+            Name: user.name,
+            Company_Name: user.companyName,
+            Position: user.position,
+            Phone: user.phone,
+            Registered_At: user.createdAt
+              ? new Date(user.createdAt).toLocaleString()
+              : "-",
+          }));
 
     const worksheet = XLSX.utils.json_to_sheet(worksheetData);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(
       workbook,
       worksheet,
-      activeTab === "event" ? "Event Bookings" : "Stall Bookings"
+      activeTab === "event"
+        ? "Event Bookings"
+        : activeTab === "stall"
+          ? "Stall Bookings"
+          : "Award Nominations"
     );
 
     const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
@@ -107,7 +126,11 @@ function ViewExcel() {
 
     saveAs(
       blob,
-      activeTab === "event" ? "event_bookings.xlsx" : "stall_bookings.xlsx"
+      activeTab === "event"
+        ? "event_bookings.xlsx"
+        : activeTab === "stall"
+          ? "stall_bookings.xlsx"
+          : "award_nominations.xlsx"
     );
   };
 
@@ -149,6 +172,18 @@ function ViewExcel() {
             STALL BOOKING
           </button>
 
+          {/* AWARD TAB */}
+          <button
+            onClick={() => setActiveTab("award")}
+            className={`px-6 sm:px-10 py-3 font-semibold text-sm sm:text-base transition-all border-l
+        ${activeTab === "award"
+                ? "bg-blue-100 text-black"
+                : "bg-white text-gray-500 hover:bg-gray-100"
+              }`}
+          >
+            AWARD NOMINATION
+          </button>
+
         </div>
       </div>
       <div className="w-full max-w-7xl">
@@ -159,58 +194,131 @@ function ViewExcel() {
         <p className="text-sm sm:text-base text-gray-600 mb-4 text-center sm:text-left">
           Total Registered:
           <span className="font-semibold">
-            {activeTab === "event" ? data.length : stallData.length}
+            {activeTab === "event"
+              ? data.length
+              : activeTab === "stall"
+                ? stallData.length
+                : awardData.length}
           </span>
+
         </p>
 
         {/* Table*/}
         <div className="hidden sm:block overflow-x-auto bg-white rounded-lg shadow">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
-              <tr>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Name</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Phone</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Email</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Place</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Company Name</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">
-                  {activeTab === "event" ? "Company Type" : "Position"}
-                </th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">
-                  {activeTab === "event" ? "Cards" : ""}
-                </th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Registered At</th>
-              </tr>
+              {activeTab === "event" && (
+                <tr>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Name</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Phone</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Place</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Card</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Registered At</th>
+                </tr>
+              )}
+
+              {activeTab === "stall" && (
+                <tr>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Name</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Phone</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Place</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Company Name</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Position</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Card</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Registered At</th>
+                </tr>
+              )}
+
+              {activeTab === "award" && (
+                <tr>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Name</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Phone</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Company Name</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Card</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Registered At</th>
+                </tr>
+              )}
             </thead>
+
             <tbody className="bg-white divide-y divide-gray-100">
               {currentUsers.length > 0 ? (
                 currentUsers.map((user, i) => (
                   <tr key={user._id ?? i} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 text-sm text-gray-800">{user.name}</td>
-                    <td className="px-4 py-3 text-sm text-gray-800">{user.phone}</td>
-                    <td className="px-4 py-3 text-sm text-gray-800">{user.email || "-"}</td>
-                    <td className="px-4 py-3 text-sm text-gray-800">{user.place}</td>
-                    <td className="px-4 py-3 text-sm text-gray-800">
-                      {activeTab === "event" ? user.cName : user.companyName}
-                    </td>
-                    <td className="px-4 py-3 text-sm text-gray-800">
-                      {activeTab === "event" ? user.cType : user.position}
-                    </td>
-                    <td className="px-4 py-3">
-                      {activeTab === "event" && (
-                        <a
-                          href={`/card/${user._id}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-600 underline hover:text-blue-800"
-                        >
-                          View Card
-                        </a>
-                      )}
-                    </td>
-                    <td className="px-4 py-3 text-sm text-gray-800">
-                      {user.createdAt ? new Date(user.createdAt).toLocaleString() : "-"}
-                    </td>
+                    {/* Event rows */}
+                    {activeTab === "event" && (
+                      <>
+                        <td className="px-4 py-3 text-sm text-gray-800">{user.name}</td>
+                        <td className="px-4 py-3 text-sm text-gray-800">{user.phone}</td>
+                        <td className="px-4 py-3 text-sm text-gray-800">{user.place}</td>
+                        <td className="px-4 py-3">
+                          <a
+                            href={`/card/${user._id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 underline hover:text-blue-800"
+                          >
+                            View Card
+                          </a>
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-800">
+                          {user.createdAt ? new Date(user.createdAt).toLocaleString() : "-"}
+                        </td>
+                      </>
+                    )}
+
+                    {/* Stall rows */}
+                    {activeTab === "stall" && (
+                      <>
+                        <td className="px-4 py-3 text-sm text-gray-800">{user.name}</td>
+                        <td className="px-4 py-3 text-sm text-gray-800">{user.phone}</td>
+                        <td className="px-4 py-3 text-sm text-gray-800">{user.place}</td>
+                        <td className="px-4 py-3 text-sm text-gray-800">{user.companyName}</td>
+                        <td className="px-4 py-3 text-sm text-gray-800">{user.position}</td>
+                        <td className="px-4 py-3 text-sm">
+                          {user.userId ? (
+                            <a
+                              href={`/card/${user.userId}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 underline hover:text-blue-800"
+                            >
+                              View Card
+                            </a>
+                          ) : (
+                            <span className="text-gray-400 text-xs">No card</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-800">
+                          {user.createdAt ? new Date(user.createdAt).toLocaleString() : "-"}
+                        </td>
+                      </>
+                    )}
+
+                    {/* Award rows */}
+                    {activeTab === "award" && (
+                      <>
+                        <td className="px-4 py-3 text-sm text-gray-800">{user.name}</td>
+                        <td className="px-4 py-3 text-sm text-gray-800">{user.phone}</td>
+                        <td className="px-4 py-3 text-sm text-gray-800">{user.companyName}</td>
+                        <td className="px-4 py-3 text-sm">
+                          {user.userId ? (
+                            <a
+                              href={`/card/${user.userId}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 underline hover:text-blue-800"
+                            >
+                              View Card
+                            </a>
+                          ) : (
+                            <span className="text-gray-400 text-xs">No card</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-800">
+                          {user.createdAt ? new Date(user.createdAt).toLocaleString() : "-"}
+                        </td>
+                      </>
+                    )}
                   </tr>
                 ))
               ) : (
@@ -236,17 +344,23 @@ function ViewExcel() {
                   <div className="text-sm font-semibold text-gray-800">{user.name}</div>
                   <div className="text-xs text-gray-500">{user.phone}</div>
                 </div>
-                <div className="text-xs text-gray-600 mb-1">Email: {user.email || "-"}</div>
                 <div className="text-xs text-gray-600 mb-1">Place: {user.place}</div>
-                <div className="text-xs text-gray-600 mb-1">
-                  Company Name: {activeTab === "event" ? user.cName : user.companyName}
-                </div>
 
-                <div className="text-xs text-gray-600 mb-1">
-                  {activeTab === "event"
-                    ? `Company Type: ${user.cType}`
-                    : `Position: ${user.position}`}
-                </div>
+                {activeTab === "stall" && (
+                  <div className="text-xs text-gray-600 mb-1">
+                    Company Name: {user.companyName}
+                  </div>
+                )}
+
+                {activeTab === "stall" && (
+                  <div className="text-xs text-gray-600 mb-1">{`Position: ${user.position}`}</div>
+                )}
+                {activeTab === "award" && (
+                  <div className="text-xs text-gray-600 mb-1">
+                    Company Name: {user.companyName}
+                  </div>
+                )}
+
                 <div className="text-xs text-gray-500 mt-2">
                   Registered: {user.createdAt ? new Date(user.createdAt).toLocaleString() : "-"}
                 </div>

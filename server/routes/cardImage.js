@@ -77,69 +77,124 @@ router.get("/image/:id", async (req, res) => {
     }
 
     /* NAME BOX  */
-    
-const paddingX = 28;
-const paddingY = 22;
-const gap = 10;
 
-// ctx.textAlign = "right";
-ctx.textAlign = "center"
+    const paddingX = 28;
+    const paddingY = 26;
+    const gap = 14;
 
-/* NAME */
-ctx.font = "bold 35px sans-serif";
-const nameTextWidth = ctx.measureText(user.name).width;
+    // Center-align text for the name plate
+    ctx.textAlign = "center";
 
-/* PLACE */
-let placeTextWidth = 0;
-if (user.place) {
-  ctx.font = "30px sans-serif";
-  placeTextWidth = ctx.measureText(user.place).width;
-}
+    const displayName = (user.name || "").toUpperCase();
+    // Line under the name:
+    //  - visitors: show place (with Kochi fallback)
+    //  - stall/award: prefer company name (cName), fallback to place/Kochi
+    let lineText;
+    if (user.registrationType === "stall" || user.registrationType === "award") {
+      if (user.cName && user.cName.trim()) {
+        lineText = user.cName;
+      } else if (user.place && user.place.trim()) {
+        lineText = user.place;
+      } else {
+        lineText = "Kochi";
+      }
+    } else {
+      lineText = (user.place && user.place.trim()) ? user.place : "Kochi";
+    }
 
-/* BOX SIZE (dynamic) */
-const contentWidth = Math.max(nameTextWidth, placeTextWidth);
-const boxWidth = contentWidth + paddingX * 2;
-const boxHeight = user.place
-  ? paddingY * 2 + 35 + gap + 30
-  : paddingY * 2 + 35;
+    const displayPlace = (lineText || "Kochi").toUpperCase();
 
-/* POSITION (same translateX(-100%)) */
-// const boxX = WIDTH / 2 - boxWidth;
-const boxX = (WIDTH - boxWidth) / 2;
-const boxY = 750;
+    let badgeText = "";
+    if (user.registrationType === "award") {
+      badgeText = "BUSINESS AWARD NOMINEE";
+    } else if (user.registrationType === "stall") {
+      badgeText = "STALL";
+    } else {
+      // default visitor badge
+      badgeText = "VISITOR";
+    }
 
-/* DRAW BOX */
-ctx.fillStyle = "#713F98";
-// drawRoundedLeftRect(ctx, boxX, boxY, boxWidth, boxHeight, 24);
-drawRoundedRect(ctx, boxX, boxY, boxWidth, boxHeight, 30);
+    /* NAME */
+    ctx.font = "bold 40px sans-serif";
 
-ctx.fill();
+    const nameTextWidth = ctx.measureText(displayName).width;
 
-/* DRAW NAME */
-ctx.fillStyle = "#ffffff";
-ctx.font = "bold 35px sans-serif";
-ctx.fillText(
-  user.name,
-  // boxX + boxWidth - paddingX,
-   boxX + boxWidth / 2,
-  boxY + paddingY + 35
-);
+    /* PLACE */
+    ctx.font = "36px sans-serif";
+    const placeTextWidth = ctx.measureText(displayPlace).width;
 
-/* DRAW PLACE */
-if (user.place) {
-  ctx.font = "30px sans-serif";
-  ctx.fillText(
-    user.place,
-    // boxX + boxWidth - paddingX,
-    boxX + boxWidth / 2,
-    boxY + paddingY + 35 + gap + 30
-  );
-}
+    /* BADGE */
+    ctx.font = "bold 30px sans-serif";
 
-    /* QR */
+    const badgeTextWidth = ctx.measureText(badgeText).width;
+
+    /* BOX SIZE (dynamic) */
+    const contentWidth = Math.max(nameTextWidth, placeTextWidth, badgeTextWidth);
+    const boxWidth = contentWidth + paddingX * 2;
+
+    const boxHeight =
+      paddingY * 2 +
+      40 +
+      (gap + 34) +
+      (badgeText ? gap + 30 : 0);
+
+    /* POSITION: horizontally centered; used as reference for text + QR */
+    const boxX = (WIDTH - boxWidth) / 2;
+    const boxY = 560;
+
+    /* DRAW NAME / PLACE / BADGE (black text, stacked) */
+    ctx.fillStyle = "#000000";
+
+    let currentY = boxY + paddingY + 40;
+
+    // Name
+    ctx.font = "bold 40px sans-serif";
+    ctx.fillText(displayName, boxX + boxWidth / 2, currentY);
+
+    // Place (always render line between name and badge)
+    currentY += gap + 34;
+    ctx.font = "36px sans-serif";
+    ctx.fillText(displayPlace, boxX + boxWidth / 2, currentY);
+
+    // Badge line
+    if (badgeText) {
+      // add a bit more space below place before the badge
+      currentY += gap + 40;
+
+      const badgeFont = "bold 30px sans-serif";
+
+      ctx.font = badgeFont;
+
+      // Badge background box sized to text
+      const badgePaddingX = 32;
+      const badgePaddingY = 14;
+
+      const badgeTextWidthForBox = ctx.measureText(badgeText).width;
+      const badgeBoxWidth = badgeTextWidthForBox + badgePaddingX * 2;
+      const badgeBoxHeight = 30 + badgePaddingY * 2;
+      const badgeBoxX = (WIDTH - badgeBoxWidth) / 2;
+      const badgeBoxY = currentY - 30 - badgePaddingY;
+
+      // Themed background (green, matching card accents)
+      ctx.fillStyle = "#0f766e"; // teal/green
+      drawRoundedRect(ctx, badgeBoxX, badgeBoxY, badgeBoxWidth, badgeBoxHeight, 18);
+      ctx.fill();
+
+      // Badge text in white on top
+      ctx.fillStyle = "#ffffff";
+      ctx.fillText(badgeText, boxX + boxWidth / 2, currentY);
+
+      // Restore fillStyle to black for anything drawn later
+      ctx.fillStyle = "#000000";
+    }
+
+    /* QR - centered below the name, slightly larger */
     if (user.qr) {
       const qr = await loadImageFromUrl(user.qr);
-      ctx.drawImage(qr, 50, HEIGHT - 200, 150, 150);
+      const qrSize = 300;
+      const qrX = (WIDTH - qrSize) / 2;
+      const qrY = boxY + boxHeight + 20;
+      ctx.drawImage(qr, qrX, qrY, qrSize, qrSize);
     }
 
     res.setHeader("Content-Type", "image/png");
