@@ -1152,24 +1152,7 @@ function Homepage() {
             </div>
           </div>
           <div className="w-full mt-3 mb-6">
-    <div className="flex items-center justify-center gap-4 text-[11px] sm:text-sm text-gray-400">
-      <a
-        href="/terms-and-conditions"
-        className="hover:text-gray-700 transition-colors duration-300 cursor-pointer"
-      >
-        Terms & Conditions
-      </a>
-
-      <span className="opacity-40 cursor-default">|</span>
-
-      <a
-        href="/privacy-policy"
-        className="hover:text-gray-700 transition-colors duration-300 cursor-pointer"
-      >
-        Privacy Policy
-      </a>
-    </div>
-  </div>
+    
 
           <div className="w-full my-3 sm:my-0">
             <div className="flex sm:flex-row items-center justify-center gap-2 sm:gap-3 text-gray-500 text-xs sm:text-lg font-medium">
