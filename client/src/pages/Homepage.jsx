@@ -12,7 +12,7 @@ import brand9 from "../logos/logo_09.png";
 import brand10 from "../logos/logo_10.png";
 
 import backgroundImg from "../assets/ChatGPT Image Jan 3, 2026, 12_56_48 PM.png";
-import backgroundImgMobile from "../assets/website banner  1080 ×1500-01.png";
+import backgroundImgMobile from "../assets/Award AD.jpg";
 
 import { registerStall, registerUser, registerAward } from "../api/userApi";
 import { toast } from "sonner";
@@ -364,7 +364,7 @@ function Homepage() {
           <div className="flex flex-[2] flex-wrap md:flex-nowrap justify-between gap-4 md:gap-6 lg:gap-10 text-xs md:text-sm lg:text-base">
             <div className="flex flex-col items-start min-w-[90px]">
               <p className="uppercase tracking-[0.22em] text-gray-500 text-[0.7rem] md:text-[0.72rem] lg:text-xs">Date</p>
-              <p className="mt-1 text-sm md:text-base lg:text-lg font-semibold">25 April 2026</p>
+              <p className="mt-1 text-sm md:text-base lg:text-lg font-semibold">28 March 2026</p>
             </div>
             <div className="flex flex-col items-start min-w-[120px]">
               <p className="uppercase tracking-[0.22em] text-gray-500 text-[0.7rem] md:text-[0.72rem] lg:text-xs">Venue</p>
@@ -380,7 +380,7 @@ function Homepage() {
           <div className="flex-1 flex items-center justify-end min-w-[180px] mt-2 md:mt-0">
             <button
               onClick={() => setShowBooking(true)}
-              className="w-full md:w-auto px-6 md:px-8 lg:px-10 py-3 text-xs md:text-sm lg:text-base font-semibold tracking-[0.22em] uppercase rounded-full text-center bg-[#0f766e] text-white shadow-sm transform transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-emerald-500/40 hover:bg-[#0d5f59] active:scale-95"
+              className="w-full md:w-auto px-6 md:px-8 lg:px-10 py-3 text-xs md:text-sm lg:text-base font-semibold tracking-[0.22em] uppercase rounded-full text-center bg-[#0f766e] text-white shadow-sm transform transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-emerald-500/40 hover:bg-[#0d5f59] active:scale-95 cursor-pointer"
             >
               Book Your Ticket 
             </button>
@@ -394,7 +394,7 @@ function Homepage() {
         <div className="max-w-4xl mx-auto px-6 text-black text-center">
           <button
             onClick={() => setShowBookingChooser(true)}
-            className="inline-flex items-center justify-center w-full rounded-full bg-[#0f766e] text-white py-3.5 text-xs font-semibold tracking-[0.26em] uppercase shadow-sm transform transition-all duration-300 active:scale-95"
+            className="inline-flex items-center justify-center w-full rounded-full bg-[#0f766e] text-white py-3.5 text-xs font-semibold tracking-[0.26em] uppercase shadow-sm transform transition-all duration-300 active:scale-95 cursor-pointer"
           >
             Book Your Ticket
           </button>
@@ -1151,25 +1151,7 @@ function Homepage() {
               </a>
             </div>
           </div>
-          <div className="w-full mt-3 mb-6">
-    <div className="flex items-center justify-center gap-4 text-[11px] sm:text-sm text-gray-400">
-      <a
-        href="/terms-and-conditions"
-        className="hover:text-gray-700 transition-colors duration-300 cursor-pointer"
-      >
-        Terms & Conditions
-      </a>
-
-      <span className="opacity-40 cursor-default">|</span>
-
-      <a
-        href="/privacy-policy"
-        className="hover:text-gray-700 transition-colors duration-300 cursor-pointer"
-      >
-        Privacy Policy
-      </a>
-    </div>
-  </div>
+          
 
           <div className="w-full my-3 sm:my-0">
             <div className="flex sm:flex-row items-center justify-center gap-2 sm:gap-3 text-gray-500 text-xs sm:text-lg font-medium">
